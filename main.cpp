@@ -6,25 +6,28 @@ GLint program;
 GLuint vertPostionVBO;
 GLuint positionAttribute;
 
-GLuint vertColorVBO;
-GLuint colorAttribute;
+GLuint vertTexCoordVBO;
+GLuint texCoordAttribute;
 
+GLuint smurfTexture;
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(program);
 	glBindBuffer(GL_ARRAY_BUFFER, vertPostionVBO);
+
 	glVertexAttribPointer(positionAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(positionAttribute);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertColorVBO);
-	glVertexAttribPointer(colorAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(colorAttribute);
+	glBindBuffer(GL_ARRAY_BUFFER, vertTexCoordVBO);
+	glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(texCoordAttribute);
+	glBindTexture(GL_TEXTURE_2D, smurfTexture);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(positionAttribute);
-	glDisableVertexAttribArray(colorAttribute);
+	glDisableVertexAttribArray(texCoordAttribute);
 
 	glutSwapBuffers();
 }
@@ -34,9 +37,15 @@ void init() {
 	program = glCreateProgram();
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
 
+	smurfTexture = loadGLTexture("Smurf1.png");
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
 	glUseProgram(program);
 	positionAttribute = glGetAttribLocation(program, "position");
-	colorAttribute = glGetAttribLocation(program, "color");
+	texCoordAttribute = glGetAttribLocation(program, "texCoord");
 
 	glGenBuffers(1, &vertPostionVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, vertPostionVBO);
@@ -51,19 +60,20 @@ void init() {
 		0.5f, 0.5f
 	};
 
-	glBufferData(GL_ARRAY_BUFFER, 12* sizeof(GLfloat), sqVert, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), sqVert, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &vertColorVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, vertColorVBO);
-	GLfloat sqColors[24] = {
-		1.0f, 0.7f, 0.3f, 1.0f,
-		0.7f, 0.3f, 1.0f, 1.0f,
-		0.3f, 1.0f, 0.7f, 1.0f,
-		0.5f, 0.9f, 0.2f, 1.0f,
-		0.9f, 0.2f, 0.5f, 1.0f,
-		0.2f, 0.5f, 0.9f, 1.0f
+	glGenBuffers(1, &vertTexCoordVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, vertTexCoordVBO);
+	GLfloat sqTexCoords[12] = {
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		1.0f, 0.0f,
+
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
 	};
-	glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(GLfloat), sqColors, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), sqTexCoords, GL_STATIC_DRAW);
 
 }
 
@@ -77,7 +87,7 @@ void idle(void) {
 
 int main(int argc, char **argv) {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(500, 500);
 	glutCreateWindow("CS - 6533");
 
