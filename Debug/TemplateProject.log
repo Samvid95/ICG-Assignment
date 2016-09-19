@@ -1,4 +1,8 @@
 ﻿  main.cpp
-d:\icg\myprogram\main.cpp(42): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+d:\icg\myprogram\main.cpp(46): warning C4305: '+=': truncation from 'double' to 'float'
+d:\icg\myprogram\main.cpp(49): warning C4305: '-=': truncation from 'double' to 'float'
+d:\icg\myprogram\main.cpp(55): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\icg\myprogram\main.cpp(60): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\icg\myprogram\main.cpp(65): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
   TemplateProject.vcxproj -> D:\ICG\MyProgram\Debug\TemplateProject.exe
   TemplateProject.vcxproj -> D:\ICG\MyProgram\Debug\TemplateProject.pdb (Full PDB)

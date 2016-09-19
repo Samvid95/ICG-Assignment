@@ -11,13 +11,15 @@ GLuint vertTexCoordVBO;
 GLuint texCoordAttribute;
 
 GLuint timeUniform;
+GLuint positionUniform;
+float textureOffset = 0.0;
 
 GLuint smurfTexture;
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	int timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
-	glUniform1f(timeUniform, (float)timeSinceStart / 1000.0f);
+	
+	glUniform1f(timeUniform, textureOffset);
 
 	glUseProgram(program);
 	glBindBuffer(GL_ARRAY_BUFFER, vertPostionVBO);
@@ -38,6 +40,27 @@ void display(void) {
 	glutSwapBuffers();
 }
 
+void keyboard(unsigned char key, int x, int y) {
+	switch (key) {
+	case 'a':
+		textureOffset += 0.02;
+		break;
+	case 'd':
+		textureOffset -= 0.02;
+		break;
+	}
+}
+void mouse(int button, int state, int x, int y) {
+	float newPositionX = (float)x / 250.0f - 1.0f;
+	float newPositionY = (1.0 - (float)y / 250.0);
+	glUniform2f(positionUniform, newPositionX, newPositionY);
+}
+void mouseMove(int x, int y) {
+	float newPositionX = (float)x / 250.0f - 1.0f;
+	float newPositionY = (1.0 - (float)y / 250.0);
+	glUniform2f(positionUniform, newPositionX, newPositionY);
+}
+
 void init() {
 	glClearColor(0.2, 0.2, 0.2, 0.0);
 	program = glCreateProgram();
@@ -53,6 +76,7 @@ void init() {
 	positionAttribute = glGetAttribLocation(program, "position");
 	texCoordAttribute = glGetAttribLocation(program, "texCoord");
 	timeUniform = glGetUniformLocation(program, "time");
+	positionUniform = glGetUniformLocation(program, "modelPosition");
 
 	glGenBuffers(1, &vertPostionVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, vertPostionVBO);
@@ -103,6 +127,10 @@ int main(int argc, char **argv) {
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
+
+	glutKeyboardFunc(keyboard);
+	glutMouseFunc(mouse);
+	glutMotionFunc(mouseMove);
 
 	init();
 	glutMainLoop();
