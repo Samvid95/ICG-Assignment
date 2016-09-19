@@ -2,6 +2,7 @@
 #include <glut.h>
 #include <iostream>
 
+using namespace std;
 
 GLint program;
 GLuint vertPostionVBO;
@@ -32,6 +33,10 @@ void display(void) {
 	glEnableVertexAttribArray(texCoordAttribute);
 	glBindTexture(GL_TEXTURE_2D, smurfTexture);
 
+	glUniform2f(positionUniform, -0.5, 0.5);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glUniform2f(positionUniform, 0.5, -0.5);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(positionAttribute);
