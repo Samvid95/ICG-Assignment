@@ -1,5 +1,6 @@
 #include "glsupport.h"
 #include <glut.h>
+#include <iostream>
 
 
 GLint program;
@@ -9,9 +10,14 @@ GLuint positionAttribute;
 GLuint vertTexCoordVBO;
 GLuint texCoordAttribute;
 
+GLuint timeUniform;
+
 GLuint smurfTexture;
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	int timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+	glUniform1f(timeUniform, (float)timeSinceStart / 1000.0f);
 
 	glUseProgram(program);
 	glBindBuffer(GL_ARRAY_BUFFER, vertPostionVBO);
@@ -46,6 +52,7 @@ void init() {
 	glUseProgram(program);
 	positionAttribute = glGetAttribLocation(program, "position");
 	texCoordAttribute = glGetAttribLocation(program, "texCoord");
+	timeUniform = glGetUniformLocation(program, "time");
 
 	glGenBuffers(1, &vertPostionVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, vertPostionVBO);
