@@ -14,12 +14,14 @@ GLuint texCoordAttribute;
 GLuint timeUniform;
 GLuint positionUniform;
 float textureOffset = 0.0;
+bool textureChangingVariable;
 
 GLuint smurfTexture;
+GLuint smurfTexture1;
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	
+
 	glUniform1f(timeUniform, textureOffset);
 
 	glUseProgram(program);
@@ -31,13 +33,16 @@ void display(void) {
 	glBindBuffer(GL_ARRAY_BUFFER, vertTexCoordVBO);
 	glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(texCoordAttribute);
-	glBindTexture(GL_TEXTURE_2D, smurfTexture);
 
-	glUniform2f(positionUniform, -0.5, 0.5);
+	if (textureChangingVariable == false) {
+		glBindTexture(GL_TEXTURE_2D, smurfTexture);
+	}
+	if (textureChangingVariable == true) {
+		glBindTexture(GL_TEXTURE_2D, smurfTexture1);
+	}
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+	
 
-	glUniform2f(positionUniform, 0.5, -0.5);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(texCoordAttribute);
@@ -56,22 +61,33 @@ void keyboard(unsigned char key, int x, int y) {
 	}
 }
 void mouse(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		textureChangingVariable = true;
+	}
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+		textureChangingVariable = false;
+	}
+	
 	float newPositionX = (float)x / 250.0f - 1.0f;
 	float newPositionY = (1.0 - (float)y / 250.0);
 	glUniform2f(positionUniform, newPositionX, newPositionY);
+	
 }
 void mouseMove(int x, int y) {
+	
 	float newPositionX = (float)x / 250.0f - 1.0f;
 	float newPositionY = (1.0 - (float)y / 250.0);
 	glUniform2f(positionUniform, newPositionX, newPositionY);
+	
 }
 
 void init() {
 	glClearColor(0.2, 0.2, 0.2, 0.0);
 	program = glCreateProgram();
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
-
+	textureChangingVariable = false;
 	smurfTexture = loadGLTexture("Smurf1.png");
+	smurfTexture1 = loadGLTexture("Smurf2.png");
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
