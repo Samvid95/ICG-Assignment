@@ -6,8 +6,8 @@
 *
 *
 *Summary of File:
-*	This is the second question in the assignement.
-*	This will load texure on the 4 different places of the screen using the same buffer.
+*	This is the first question in the assignement.
+*		This will load texure on the 2 different places of the screen.
 */
 #include "glsupport.h"
 #include <glut.h>
@@ -27,7 +27,6 @@ GLuint positionUniform;
 float textureOffset = 0.0;
 
 GLuint smurfTexture;
-GLuint smurfTexture1;
 
 /**
 * void display(void)
@@ -54,21 +53,12 @@ void display(void) {
 	glBindBuffer(GL_ARRAY_BUFFER, vertTexCoordVBO);
 	glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(texCoordAttribute);
-
 	glBindTexture(GL_TEXTURE_2D, smurfTexture);
+
 	glUniform2f(positionUniform, -0.5, 0.5);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
-	glBindTexture(GL_TEXTURE_2D, smurfTexture1);
-	glUniform2f(positionUniform, 0.5, 0.5);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-
-	glBindTexture(GL_TEXTURE_2D, smurfTexture);
 	glUniform2f(positionUniform, 0.5, -0.5);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-
-	glBindTexture(GL_TEXTURE_2D, smurfTexture1);
-	glUniform2f(positionUniform, -0.5, -0.5);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(positionAttribute);
@@ -150,7 +140,6 @@ void init() {
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
 
 	smurfTexture = loadGLTexture("Smurf1.png");
-	smurfTexture1 = loadGLTexture("Smurf2.png");
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
