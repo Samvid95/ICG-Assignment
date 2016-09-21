@@ -6,12 +6,9 @@
 *
 *
 *Summary of File:
-*	This is the bonus question in the assignement.
-*		This program can take input from Mouse Click and Mouse Movment and also keyboard inputs.
-*		It will change the image as the button is pressed and mouse is moved and
-*		if you release the click it will come back to the original image.
+*	This is the second question in the assignement.
+*	This will load texure on the 4 different places of the screen using the same buffer.
 */
-
 #include "glsupport.h"
 #include <glut.h>
 #include <iostream>
@@ -23,15 +20,15 @@ GLuint vertPostionVBO;
 GLuint positionAttribute;
 
 GLuint vertTexCoordVBO;
-GLuint textureCoordAttribute;
+GLuint texCoordAttribute;
 
-GLuint timerUniform;
+GLuint timeUniform;
 GLuint positionUniform;
-float offset = 0.0;
-bool textureChangingVariable;
+float textureOffset = 0.0;
 
 GLuint smurfTexture;
 GLuint smurfTexture1;
+
 /**
 * void display(void)
 *
@@ -46,7 +43,7 @@ void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 
-	glUniform1f(timerUniform, offset);
+	glUniform1f(timeUniform, textureOffset);
 
 	glUseProgram(program);
 	glBindBuffer(GL_ARRAY_BUFFER, vertPostionVBO);
@@ -55,24 +52,31 @@ void display(void) {
 	glEnableVertexAttribArray(positionAttribute);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertTexCoordVBO);
-	glVertexAttribPointer(textureCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(textureCoordAttribute);
+	glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(texCoordAttribute);
 
-	if (textureChangingVariable == false) {
-		glBindTexture(GL_TEXTURE_2D, smurfTexture);
-	}
-	if (textureChangingVariable == true) {
-		glBindTexture(GL_TEXTURE_2D, smurfTexture1);
-	}
+	glBindTexture(GL_TEXTURE_2D, smurfTexture);
+	glUniform2f(positionUniform, -0.5, 0.5);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
+	glBindTexture(GL_TEXTURE_2D, smurfTexture1);
+	glUniform2f(positionUniform, 0.5, 0.5);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 
+	glBindTexture(GL_TEXTURE_2D, smurfTexture);
+	glUniform2f(positionUniform, 0.5, -0.5);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glBindTexture(GL_TEXTURE_2D, smurfTexture1);
+	glUniform2f(positionUniform, -0.5, -0.5);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(positionAttribute);
-	glDisableVertexAttribArray(textureCoordAttribute);
+	glDisableVertexAttribArray(texCoordAttribute);
 
 	glutSwapBuffers();
 }
+
 /**
 *
 * void keyboard(unsigned char key, int x, int y)
@@ -86,10 +90,10 @@ void display(void) {
 void keyboard(unsigned char key, int x, int y) {
 	switch (key) {
 	case 'a':
-		offset += 0.02;
+		textureOffset += 0.02;
 		break;
 	case 'd':
-		offset -= 0.02;
+		textureOffset -= 0.02;
 		break;
 	}
 }
@@ -107,17 +111,9 @@ void keyboard(unsigned char key, int x, int y) {
 *	The another part is responsible for the repossitioning of the texture.
 */
 void mouse(int button, int state, int x, int y) {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-		textureChangingVariable = true;
-	}
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
-		textureChangingVariable = false;
-	}
-
 	float newPositionX = (float)x / 250.0f - 1.0f;
 	float newPositionY = (1.0 - (float)y / 250.0);
 	glUniform2f(positionUniform, newPositionX, newPositionY);
-
 }
 
 /**
@@ -132,11 +128,9 @@ void mouse(int button, int state, int x, int y) {
 *	It will reposition the texture as the mose positions.
 */
 void mouseMove(int x, int y) {
-
 	float newPositionX = (float)x / 250.0f - 1.0f;
 	float newPositionY = (1.0 - (float)y / 250.0);
 	glUniform2f(positionUniform, newPositionX, newPositionY);
-
 }
 
 /**
@@ -154,7 +148,7 @@ void init() {
 	glClearColor(0.2, 0.2, 0.2, 0.0);
 	program = glCreateProgram();
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
-	textureChangingVariable = false;
+
 	smurfTexture = loadGLTexture("Smurf1.png");
 	smurfTexture1 = loadGLTexture("Smurf2.png");
 
@@ -164,8 +158,8 @@ void init() {
 
 	glUseProgram(program);
 	positionAttribute = glGetAttribLocation(program, "position");
-	textureCoordAttribute = glGetAttribLocation(program, "texCoord");
-	timerUniform = glGetUniformLocation(program, "time");
+	texCoordAttribute = glGetAttribLocation(program, "texCoord");
+	timeUniform = glGetUniformLocation(program, "time");
 	positionUniform = glGetUniformLocation(program, "modelPosition");
 
 	glGenBuffers(1, &vertPostionVBO);
