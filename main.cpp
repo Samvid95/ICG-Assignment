@@ -5,8 +5,8 @@
 * Course: Interactive Computer Graphics
 *
 *
-*Summary of File: 
-*	This is the bonus question in the assignement. 
+*Summary of File:
+*	This is the bonus question in the assignement.
 *		This program can take input from Mouse Click and Mouse Movment and also keyboard inputs.
 *		It will change the image as the button is pressed and mouse is moved and
 *		if you release the click it will come back to the original image.
@@ -37,9 +37,9 @@ GLuint smurfTexture1;
 *
 * Paraeters: Nothing
 * Retun Value: Nothing
-* 
-* Summary of the pogram: 
-*	This function wil do all the rendering on the screen. So this is like the update function. 
+*
+* Summary of the pogram:
+*	This function wil do all the rendering on the screen. So this is like the update function.
 *	Binds all the buffers and draw as per the specification.
 */
 void display(void) {
@@ -65,7 +65,7 @@ void display(void) {
 		glBindTexture(GL_TEXTURE_2D, smurfTexture1);
 	}
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-	
+
 
 
 	glDisableVertexAttribArray(positionAttribute);
@@ -79,8 +79,8 @@ void display(void) {
 *
 * Paraeters: Unsigned char: key, int: x and y
 * Retun Value: Nothing
-* 
-* Summary of the pogram: 
+*
+* Summary of the pogram:
 *	This program takes the input from the keyboard and that is specified in the init function and move around the image as the button is presed
 */
 void keyboard(unsigned char key, int x, int y) {
@@ -103,7 +103,7 @@ void keyboard(unsigned char key, int x, int y) {
 *
 * Summary of the pogram:
 *	This program takes input from the mouse button.
-*	The first If part is responsible to change the texture. 
+*	The first If part is responsible to change the texture.
 *	The another part is responsible for the repossitioning of the texture.
 */
 void mouse(int button, int state, int x, int y) {
@@ -113,11 +113,11 @@ void mouse(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
 		textureChangingVariable = false;
 	}
-	
+
 	float newPositionX = (float)x / 250.0f - 1.0f;
 	float newPositionY = (1.0 - (float)y / 250.0);
 	glUniform2f(positionUniform, newPositionX, newPositionY);
-	
+
 }
 
 /**
@@ -132,11 +132,11 @@ void mouse(int button, int state, int x, int y) {
 *	It will reposition the texture as the mose positions.
 */
 void mouseMove(int x, int y) {
-	
+
 	float newPositionX = (float)x / 250.0f - 1.0f;
 	float newPositionY = (1.0 - (float)y / 250.0);
 	glUniform2f(positionUniform, newPositionX, newPositionY);
-	
+
 }
 
 /**
@@ -144,9 +144,9 @@ void mouseMove(int x, int y) {
 *
 * Paraeters: Nothing
 * Retun Value: Nothing
-* 
-* Summary of the pogram: 
-*	This part is reponsible of all the initalization of the program. 
+*
+* Summary of the pogram:
+*	This part is reponsible of all the initalization of the program.
 *	Coordinates of triangles and texture are initiated here.
 *	All the attributes are also initiated here and joined with the program.
 */
