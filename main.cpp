@@ -18,7 +18,7 @@ void display(void) {
 
 	glUseProgram(program);
 	glBindBuffer(GL_ARRAY_BUFFER, vertPostionVBO);
-	glVertexAttribPointer(positionAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(positionAttribute);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertColorVBO);
@@ -26,10 +26,10 @@ void display(void) {
 	glEnableVertexAttribArray(colorAttribute);
 
 	Matrix4 objectMatrix;
-	objectMatrix = objectMatrix.makeZRotation(45.0);
+	objectMatrix = objectMatrix.makeZRotation(0.0);
 
 	Matrix4 eyeMatrix;
-	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(-0.5, 0.0, 0.0));
+	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 10.0));
 	
 	Matrix4 modelViewMatrix = inv(eyeMatrix) * objectMatrix;
 	GLfloat glmatrix[16];
@@ -52,11 +52,13 @@ void display(void) {
 }
 
 void init() {
+	glClearDepth(0.0f);
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+	glDepthFunc(GL_GREATER);
 	glCullFace(GL_BACK);
 	glEnable(GL_CULL_FACE);
 	glReadBuffer(GL_BACK);
+	
 
 	glClearColor(0.2, 0.2, 0.2, 0.0);
 	program = glCreateProgram();
