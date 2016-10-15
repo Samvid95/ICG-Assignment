@@ -3,6 +3,7 @@
 #include "matrix4.h"
 
 
+
 GLint program;
 GLuint vertPostionVBO;
 GLuint positionAttribute;
@@ -13,6 +14,29 @@ GLuint colorAttribute;
 GLuint modelViewMatrixUniformLocation;
 GLuint projectionMatrixUniformLocation;
 GLuint positionUniform;
+
+int timeStart = glutGet(GLUT_ELAPSED_TIME);
+
+struct Entity {
+	Cvec3 t;
+	Cvec3 r;
+	Cvec3 s;
+
+	Matrix4 modelMatrix;
+
+	void createMatrix() {
+		Matrix4 tempRMatrix;
+		tempRMatrix = tempRMatrix.makeXRotation(t[0] * (float)timeStart / 1000.0f);
+
+		Matrix4 tempTMatrix;
+		tempTMatrix = tempTMatrix.makeTranslation(t);
+
+		Matrix4 tempSMatrix;
+		tempSMatrix = tempSMatrix.makeScale(s);
+
+		modelMatrix = tempTMatrix * tempRMatrix * tempSMatrix;
+	}
+};
 
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -26,14 +50,21 @@ void display(void) {
 	glVertexAttribPointer(colorAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(colorAttribute);
 
-	int timeStart = glutGet(GLUT_ELAPSED_TIME);
+	
+	
+	Entity matrixA;
+	matrixA.t = Cvec3(0.0, 0.0, 0.0);
+	matrixA.r = Cvec3(45.0, 0.0, 0.0);
+	matrixA.s = Cvec3(5.0, 0.5, 1.0);
+	matrixA.createMatrix();
+	
 	Matrix4 objectMatrix;
 	objectMatrix = objectMatrix.makeXRotation(45 * (float)timeStart/1000.f);
 
 	Matrix4 eyeMatrix;
-	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 10.0));
+	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 20.0));
 	
-	Matrix4 modelViewMatrix = inv(eyeMatrix) * objectMatrix;
+	Matrix4 modelViewMatrix = inv(eyeMatrix) * matrixA.modelMatrix;
 	GLfloat glmatrix[16];
 	modelViewMatrix.writeToColumnMajorMatrix(glmatrix);
 	glUniformMatrix4fv(modelViewMatrixUniformLocation, 1, false, glmatrix);
