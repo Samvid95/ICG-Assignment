@@ -1,8 +1,9 @@
 #include "glsupport.h"
 #include <glut.h>
 #include "matrix4.h"
+#include <iostream>
 
-
+using namespace std;
 
 GLint program;
 GLuint vertPostionVBO;
@@ -15,26 +16,33 @@ GLuint modelViewMatrixUniformLocation;
 GLuint projectionMatrixUniformLocation;
 GLuint positionUniform;
 
-int timeStart = glutGet(GLUT_ELAPSED_TIME);
+
+
+typedef struct Entity Entity;
 
 struct Entity {
 	Cvec3 t;
 	Cvec3 r;
 	Cvec3 s;
 
+	Entity *parent;
 	Matrix4 modelMatrix;
 
+	Entity() : s(1.0, 1.0, 1.0) {};
+	
+	 
 	void createMatrix() {
+		
 		Matrix4 tempRMatrix;
-		tempRMatrix = tempRMatrix.makeXRotation(t[0] * (float)timeStart / 1000.0f);
+		tempRMatrix = tempRMatrix.makeXRotation(r[0]);
 
 		Matrix4 tempTMatrix;
 		tempTMatrix = tempTMatrix.makeTranslation(t);
 
 		Matrix4 tempSMatrix;
-		tempSMatrix = tempSMatrix.makeScale(s);
-
-		modelMatrix = tempTMatrix * tempRMatrix * tempSMatrix;
+		tempSMatrix = tempSMatrix.makeScale(s);		
+		
+		modelMatrix =  tempTMatrix * tempRMatrix * tempSMatrix;
 	}
 };
 
@@ -50,37 +58,61 @@ void display(void) {
 	glVertexAttribPointer(colorAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(colorAttribute);
 
-	
+	int timeStart = glutGet(GLUT_ELAPSED_TIME);
+
 	
 	Entity matrixA;
-	matrixA.t = Cvec3(0.0, 0.0, 0.0);
-	matrixA.r = Cvec3(45.0, 0.0, 0.0);
+	matrixA.t = Cvec3(2.0, 0.0, 0.0);
+	matrixA.r = Cvec3(45.0 * (float)timeStart/1000.0f, 0.0, 0.0);
 	matrixA.s = Cvec3(5.0, 0.5, 1.0);
+	matrixA.parent = NULL;
 	matrixA.createMatrix();
 	
+	Entity matrixB;
+	matrixB.t = Cvec3(0.5, 3.0, 0.0);
+	matrixB.r = Cvec3(45.0 * (float)timeStart/1000.0f, 0.0, 0.0);
+	matrixB.s = Cvec3(0.5, 5.0, 1.0);
+	matrixB.parent = &matrixA;
+	matrixB.createMatrix();
+
+	matrixB.modelMatrix = matrixB.parent->modelMatrix * matrixB.modelMatrix;
+
+	cout << "The rotation value of x is: " << matrixA.r[0] << endl;
+
 	Matrix4 objectMatrix;
 	objectMatrix = objectMatrix.makeXRotation(45 * (float)timeStart/1000.f);
 
 	Matrix4 eyeMatrix;
 	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 20.0));
 	
-	Matrix4 modelViewMatrix = inv(eyeMatrix) * matrixA.modelMatrix;
-	GLfloat glmatrix[16];
-	modelViewMatrix.writeToColumnMajorMatrix(glmatrix);
-	glUniformMatrix4fv(modelViewMatrixUniformLocation, 1, false, glmatrix);
+	Matrix4 modelViewAMatrix = inv(eyeMatrix) * matrixA.modelMatrix;
+	GLfloat glmatrixA[16];
+	modelViewAMatrix.writeToColumnMajorMatrix(glmatrixA);
+	glUniformMatrix4fv(modelViewMatrixUniformLocation, 1, false, glmatrixA);
 	
 	Matrix4 projectionMatrix;
 	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
 	
-	GLfloat glmatrixProjection[16];
-	projectionMatrix.writeToColumnMajorMatrix(glmatrixProjection);
-	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, false, glmatrixProjection);
-	glUniform4f(positionUniform, 2.5f, 5.5f, 10.5f, 0.0f);
+	GLfloat glmatrixAProjection[16];
+	projectionMatrix.writeToColumnMajorMatrix(glmatrixAProjection);
+	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, false, glmatrixAProjection);
+	glUniform4f(positionUniform, 0.0, 0.0, 0.00f, 0.0f);
 	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
-	glUniform4f(positionUniform, -0.5f, -3.5f, 10.5f, 0.0f);
-	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);	
+	
+	Matrix4 modelViewBMatrix = inv(eyeMatrix) * matrixB.modelMatrix;
+	GLfloat glMatrixB[16];
+	modelViewBMatrix.writeToColumnMajorMatrix(glMatrixB);
+	glUniformMatrix4fv(modelViewMatrixUniformLocation, 1, false, glMatrixB);
 
+	GLfloat glMatrixBProjection[16];
+	projectionMatrix.writeToColumnMajorMatrix(glMatrixBProjection);
+	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, false, glMatrixBProjection);
+	glUniform4f(positionUniform, 0.0, 0.0, 0.0, 0.0);
+	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+
+
+	
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
 

@@ -1,0 +1,4 @@
+﻿  main.cpp
+d:\icg\my program\main.cpp(131): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+  TemplateProject.vcxproj -> D:\ICG\My Program\Debug\TemplateProject.exe
+  TemplateProject.vcxproj -> D:\ICG\My Program\Debug\TemplateProject.pdb (Full PDB)
