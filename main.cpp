@@ -12,6 +12,7 @@ GLuint colorAttribute;
 
 GLuint modelViewMatrixUniformLocation;
 GLuint projectionMatrixUniformLocation;
+GLuint positionUniform;
 
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -25,8 +26,9 @@ void display(void) {
 	glVertexAttribPointer(colorAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(colorAttribute);
 
+	int timeStart = glutGet(GLUT_ELAPSED_TIME);
 	Matrix4 objectMatrix;
-	objectMatrix = objectMatrix.makeZRotation(0.0);
+	objectMatrix = objectMatrix.makeXRotation(45 * (float)timeStart/1000.f);
 
 	Matrix4 eyeMatrix;
 	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 10.0));
@@ -42,8 +44,11 @@ void display(void) {
 	GLfloat glmatrixProjection[16];
 	projectionMatrix.writeToColumnMajorMatrix(glmatrixProjection);
 	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, false, glmatrixProjection);
-
+	glUniform4f(positionUniform, 2.5f, 5.5f, 10.5f, 0.0f);
 	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+
+	glUniform4f(positionUniform, -0.5f, -3.5f, 10.5f, 0.0f);
+	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);	
 
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
@@ -69,6 +74,7 @@ void init() {
 	colorAttribute = glGetAttribLocation(program, "color");
 	modelViewMatrixUniformLocation = glGetUniformLocation(program, "modelViewMatrix"); 
 	projectionMatrixUniformLocation = glGetUniformLocation(program, "projectionMatrix");
+	positionUniform = glGetUniformLocation(program, "modelPosition");
 
 
 	glGenBuffers(1, &vertPostionVBO);
