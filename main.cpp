@@ -41,8 +41,14 @@ struct Entity {
 
 		Matrix4 tempSMatrix;
 		tempSMatrix = tempSMatrix.makeScale(s);		
+		if (this->parent == NULL) {
+			modelMatrix = tempTMatrix * tempRMatrix * tempSMatrix;
+		}
+		else {
+			modelMatrix = parent->modelMatrix * tempTMatrix * tempRMatrix * tempSMatrix;
+		}
+
 		
-		modelMatrix =  tempTMatrix * tempRMatrix * tempSMatrix;
 	}
 };
 
@@ -60,7 +66,7 @@ void display(void) {
 
 	int timeStart = glutGet(GLUT_ELAPSED_TIME);
 
-	
+	//Defining objectA
 	Entity matrixA;
 	matrixA.t = Cvec3(2.0, 0.0, 0.0);
 	matrixA.r = Cvec3(45.0 * (float)timeStart/1000.0f, 0.0, 0.0);
@@ -68,6 +74,7 @@ void display(void) {
 	matrixA.parent = NULL;
 	matrixA.createMatrix();
 	
+	//Defining objectB
 	Entity matrixB;
 	matrixB.t = Cvec3(0.5, 3.0, 0.0);
 	matrixB.r = Cvec3(45.0 * (float)timeStart/1000.0f, 0.0, 0.0);
@@ -75,23 +82,28 @@ void display(void) {
 	matrixB.parent = &matrixA;
 	matrixB.createMatrix();
 
-	matrixB.modelMatrix = matrixB.parent->modelMatrix * matrixB.modelMatrix;
+	//Defining objectB
+	Entity matrixC;
+	matrixC.t = Cvec3(-1.5, -6.5, 3.0);
+	matrixC.r = Cvec3(5* (float)timeStart / 1000.0f, 0.0, 0.0);
+	matrixC.s = Cvec3(1.0, 1.0, 1.0);
+	matrixC.parent = &matrixB;
+	matrixC.createMatrix();
 
-	cout << "The rotation value of x is: " << matrixA.r[0] << endl;
 
-	Matrix4 objectMatrix;
-	objectMatrix = objectMatrix.makeXRotation(45 * (float)timeStart/1000.f);
-
+	//EyeMatrix 
 	Matrix4 eyeMatrix;
 	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 20.0));
 	
+	//Projection Matrix
+	Matrix4 projectionMatrix;
+	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
+
+	//Rendering MatrixA
 	Matrix4 modelViewAMatrix = inv(eyeMatrix) * matrixA.modelMatrix;
 	GLfloat glmatrixA[16];
 	modelViewAMatrix.writeToColumnMajorMatrix(glmatrixA);
 	glUniformMatrix4fv(modelViewMatrixUniformLocation, 1, false, glmatrixA);
-	
-	Matrix4 projectionMatrix;
-	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
 	
 	GLfloat glmatrixAProjection[16];
 	projectionMatrix.writeToColumnMajorMatrix(glmatrixAProjection);
@@ -99,7 +111,7 @@ void display(void) {
 	glUniform4f(positionUniform, 0.0, 0.0, 0.00f, 0.0f);
 	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
-	
+	//Rendering MatrixB
 	Matrix4 modelViewBMatrix = inv(eyeMatrix) * matrixB.modelMatrix;
 	GLfloat glMatrixB[16];
 	modelViewBMatrix.writeToColumnMajorMatrix(glMatrixB);
@@ -111,7 +123,17 @@ void display(void) {
 	glUniform4f(positionUniform, 0.0, 0.0, 0.0, 0.0);
 	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
+	//Rendering MatrixB
+	Matrix4 modelViewCMatrix = inv(eyeMatrix) * matrixC.modelMatrix;
+	GLfloat glMatrixC[16];
+	modelViewCMatrix.writeToColumnMajorMatrix(glMatrixC);
+	glUniformMatrix4fv(modelViewMatrixUniformLocation, 1, false, glMatrixC);
 
+	GLfloat glMatrixCProjection[16];
+	projectionMatrix.writeToColumnMajorMatrix(glMatrixCProjection);
+	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, false, glMatrixCProjection);
+	glUniform4f(positionUniform, 0.0, 0.0, 0.0, 0.0);
+	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 	
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
