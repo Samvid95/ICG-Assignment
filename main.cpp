@@ -2,6 +2,7 @@
 #include <glut.h>
 #include "matrix4.h"
 #include <iostream>
+#include "quat.h"
 
 using namespace std;
 
@@ -20,21 +21,34 @@ GLuint positionUniform;
 
 typedef struct Entity Entity;
 
-struct Entity {
+class Entity {
+private:
+	Quat q1, q2, q3;
+	Quat combined;
+
+public:
 	Cvec3 t;
 	Cvec3 r;
 	Cvec3 s;
-
+	
 	Entity *parent;
 	Matrix4 modelMatrix;
 
-	Entity() : s(1.0, 1.0, 1.0) {};
+	Entity() {
+		s = (1.0, 1.0, 1.0);
+	}
 	
 	 
 	void createMatrix() {
 		
+		q1 = Quat::makeXRotation(r[0]);
+		q2 = Quat::makeXRotation(r[1]);
+		q3 = Quat::makeXRotation(r[2]);
+
+		combined = q1 * q2 * q3;
+
 		Matrix4 tempRMatrix;
-		tempRMatrix = tempRMatrix.makeXRotation(r[0]);
+		tempRMatrix = quatToMatrix(combined);
 
 		Matrix4 tempTMatrix;
 		tempTMatrix = tempTMatrix.makeTranslation(t);
@@ -47,9 +61,9 @@ struct Entity {
 		else {
 			modelMatrix = parent->modelMatrix * tempTMatrix * tempRMatrix * tempSMatrix;
 		}
-
-		
 	}
+
+
 };
 
 void display(void) {
@@ -69,7 +83,7 @@ void display(void) {
 	//Defining objectA
 	Entity matrixA;
 	matrixA.t = Cvec3(2.0, 0.0, 0.0);
-	matrixA.r = Cvec3(45.0 * (float)timeStart/1000.0f, 0.0, 0.0);
+	matrixA.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 0.0);
 	matrixA.s = Cvec3(5.0, 0.5, 1.0);
 	matrixA.parent = NULL;
 	matrixA.createMatrix();
@@ -77,15 +91,16 @@ void display(void) {
 	//Defining objectB
 	Entity matrixB;
 	matrixB.t = Cvec3(0.5, 3.0, 0.0);
-	matrixB.r = Cvec3(45.0 * (float)timeStart/1000.0f, 0.0, 0.0);
+	matrixB.r = Cvec3(45.0 * (float)timeStart / 1000.0f, 0.0, 30.0 * (float)timeStart / 1000.0f);
 	matrixB.s = Cvec3(0.5, 5.0, 1.0);
 	matrixB.parent = &matrixA;
 	matrixB.createMatrix();
+	
 
-	//Defining objectB
+	//Defining objectC
 	Entity matrixC;
 	matrixC.t = Cvec3(-1.5, -6.5, 3.0);
-	matrixC.r = Cvec3(5* (float)timeStart / 1000.0f, 0.0, 0.0);
+	matrixC.r = Cvec3(0.0, 0.0, 0.0);
 	matrixC.s = Cvec3(1.0, 1.0, 1.0);
 	matrixC.parent = &matrixB;
 	matrixC.createMatrix();
@@ -93,7 +108,7 @@ void display(void) {
 
 	//EyeMatrix 
 	Matrix4 eyeMatrix;
-	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 20.0));
+	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
 	
 	//Projection Matrix
 	Matrix4 projectionMatrix;
@@ -123,7 +138,7 @@ void display(void) {
 	glUniform4f(positionUniform, 0.0, 0.0, 0.0, 0.0);
 	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
-	//Rendering MatrixB
+	//Rendering MatrixC
 	Matrix4 modelViewCMatrix = inv(eyeMatrix) * matrixC.modelMatrix;
 	GLfloat glMatrixC[16];
 	modelViewCMatrix.writeToColumnMajorMatrix(glMatrixC);
