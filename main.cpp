@@ -8,6 +8,7 @@ using namespace std;
 
 GLint program;
 GLuint vertPostionVBO;
+GLuint normalPositionVBO;
 GLuint positionAttribute;
 
 GLuint vertColorVBO;
@@ -17,6 +18,8 @@ GLuint modelViewMatrixUniformLocation;
 GLuint projectionMatrixUniformLocation;
 GLuint positionUniform;
 
+GLuint normalAttribute;
+GLuint normalMatrixUniformLocation;
 
 
 typedef struct Entity Entity;
@@ -78,11 +81,15 @@ void display(void) {
 	glVertexAttribPointer(colorAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(colorAttribute);
 
+	glBindBuffer(GL_ARRAY_BUFFER, normalPositionVBO);
+	glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(normalAttribute);
+
 	int timeStart = glutGet(GLUT_ELAPSED_TIME);
 
 	//Defining objectA
 	Entity matrixA;
-	matrixA.t = Cvec3(2.0, 0.0, 0.0);
+	matrixA.t = Cvec3(0.0, 0.0, 0.0);
 	matrixA.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 45.0 * (float)timeStart / 1000.0f);
 	matrixA.s = Cvec3(5.0, 0.5, 1.0);
 	matrixA.parent = NULL;
@@ -107,6 +114,12 @@ void display(void) {
 	GLfloat glmatrixAProjection[16];
 	projectionMatrix.writeToColumnMajorMatrix(glmatrixAProjection);
 	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, false, glmatrixAProjection);
+
+	Matrix4 normalMatrix = transpose(inv(matrixA.modelMatrix));
+	GLfloat glMatrixANormal[16];
+	normalMatrix.writeToColumnMajorMatrix(glMatrixANormal);
+	glUniformMatrix4fv(normalMatrixUniformLocation, 1, false, glMatrixANormal);
+
 	glUniform4f(positionUniform, 0.0, 0.0, 0.00f, 0.0f);
 	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
@@ -137,6 +150,10 @@ void init() {
 	modelViewMatrixUniformLocation = glGetUniformLocation(program, "modelViewMatrix"); 
 	projectionMatrixUniformLocation = glGetUniformLocation(program, "projectionMatrix");
 	positionUniform = glGetUniformLocation(program, "modelPosition");
+
+	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
+	normalAttribute = glGetAttribLocation(program, "normal");
+
 
 
 	glGenBuffers(1, &vertPostionVBO);
@@ -242,7 +259,53 @@ void init() {
 		0.820f, 0.883f, 0.371f, 1.0f,
 		0.982f, 0.099f, 0.879f, 1.0f
 	};
+
+	
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeColors), cubeColors, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &normalPositionVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, normalPositionVBO);
+
+	GLfloat cubeNormals[] = {
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f,-1.0f,
+		0.0f, 0.0f,-1.0f,
+		0.0f, 0.0f,-1.0f,
+		0.0f,-1.0f,0.0f,
+		0.0f,-1.0f,0.0f,
+		0.0f,-1.0f,0.0f,
+		0.0f, 0.0f,-1.0f,
+		0.0f, 0.0f,-1.0f,
+		0.0f, 0.0f,-1.0f,
+		-1.0f, 0.0f,0.0f,
+		-1.0f, 0.0f,0.0f,
+		-1.0f, 0.0f,0.0f,
+		0.0f,-1.0f, 0.0f,
+		0.0f,-1.0f, 0.0f,
+		0.0f,-1.0f,0.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f,0.0f, 1.0f,
+		0.0f,0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f,0.0f,0.0f,
+		1.0f, 0.0f,0.0f,
+		1.0f,0.0f,0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f,0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f,0.0f,
+		0.0f, 1.0f,0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f,0.0f, 1.0f
+	};
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeNormals), cubeNormals, GL_STATIC_DRAW);
 
 }
 
