@@ -1,6 +1,6 @@
 ﻿  main.cpp
 d:\icg\my program\main.cpp(24): warning C4099: 'Entity': type name first seen using 'struct' now seen using 'class'
   d:\icg\my program\main.cpp(24): note: see declaration of 'Entity'
-d:\icg\my program\main.cpp(168): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+d:\icg\my program\main.cpp(130): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
   TemplateProject.vcxproj -> D:\ICG\My Program\Debug\TemplateProject.exe
   TemplateProject.vcxproj -> D:\ICG\My Program\Debug\TemplateProject.pdb (Full PDB)

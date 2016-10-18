@@ -42,8 +42,8 @@ public:
 	void createMatrix() {
 		
 		q1 = Quat::makeXRotation(r[0]);
-		q2 = Quat::makeXRotation(r[1]);
-		q3 = Quat::makeXRotation(r[2]);
+		q2 = Quat::makeYRotation(r[1]);
+		q3 = Quat::makeZRotation(r[2]);
 
 		combined = q1 * q2 * q3;
 
@@ -83,30 +83,14 @@ void display(void) {
 	//Defining objectA
 	Entity matrixA;
 	matrixA.t = Cvec3(2.0, 0.0, 0.0);
-	matrixA.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 0.0);
+	matrixA.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 45.0 * (float)timeStart / 1000.0f);
 	matrixA.s = Cvec3(5.0, 0.5, 1.0);
 	matrixA.parent = NULL;
 	matrixA.createMatrix();
 	
-	//Defining objectB
-	Entity matrixB;
-	matrixB.t = Cvec3(0.5, 3.0, 0.0);
-	matrixB.r = Cvec3(45.0 * (float)timeStart / 1000.0f, 0.0, 30.0 * (float)timeStart / 1000.0f);
-	matrixB.s = Cvec3(0.5, 5.0, 1.0);
-	matrixB.parent = &matrixA;
-	matrixB.createMatrix();
-	
-
-	//Defining objectC
-	Entity matrixC;
-	matrixC.t = Cvec3(-1.5, -6.5, 3.0);
-	matrixC.r = Cvec3(0.0, 0.0, 0.0);
-	matrixC.s = Cvec3(1.0, 1.0, 1.0);
-	matrixC.parent = &matrixB;
-	matrixC.createMatrix();
 
 
-	//EyeMatrix 
+	//EyeMatrix
 	Matrix4 eyeMatrix;
 	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
 	
@@ -126,29 +110,7 @@ void display(void) {
 	glUniform4f(positionUniform, 0.0, 0.0, 0.00f, 0.0f);
 	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
-	//Rendering MatrixB
-	Matrix4 modelViewBMatrix = inv(eyeMatrix) * matrixB.modelMatrix;
-	GLfloat glMatrixB[16];
-	modelViewBMatrix.writeToColumnMajorMatrix(glMatrixB);
-	glUniformMatrix4fv(modelViewMatrixUniformLocation, 1, false, glMatrixB);
-
-	GLfloat glMatrixBProjection[16];
-	projectionMatrix.writeToColumnMajorMatrix(glMatrixBProjection);
-	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, false, glMatrixBProjection);
-	glUniform4f(positionUniform, 0.0, 0.0, 0.0, 0.0);
-	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
-
-	//Rendering MatrixC
-	Matrix4 modelViewCMatrix = inv(eyeMatrix) * matrixC.modelMatrix;
-	GLfloat glMatrixC[16];
-	modelViewCMatrix.writeToColumnMajorMatrix(glMatrixC);
-	glUniformMatrix4fv(modelViewMatrixUniformLocation, 1, false, glMatrixC);
-
-	GLfloat glMatrixCProjection[16];
-	projectionMatrix.writeToColumnMajorMatrix(glMatrixCProjection);
-	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, false, glMatrixCProjection);
-	glUniform4f(positionUniform, 0.0, 0.0, 0.0, 0.0);
-	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+	
 	
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
