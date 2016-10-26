@@ -1,6 +1,6 @@
 ﻿  main.cpp
-d:\icg\my program\main.cpp(72): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-d:\icg\my program\main.cpp(104): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\icg\my program\main.cpp(129): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+d:\icg\my program\main.cpp(27): warning C4099: 'Entity': type name first seen using 'struct' now seen using 'class'
+  d:\icg\my program\main.cpp(27): note: see declaration of 'Entity'
+d:\icg\my program\main.cpp(143): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
   TemplateProject.vcxproj -> D:\ICG\My Program\Debug\TemplateProject.exe
   TemplateProject.vcxproj -> D:\ICG\My Program\Debug\TemplateProject.pdb (Full PDB)
