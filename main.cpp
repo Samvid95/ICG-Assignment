@@ -3,6 +3,8 @@
 #include "matrix4.h"
 #include <iostream>
 #include "quat.h"
+#include <vector>
+#include "geometrymaker.h"
 
 using namespace std;
 
@@ -21,6 +23,8 @@ GLuint positionUniform;
 GLuint normalAttribute;
 GLuint normalMatrixUniformLocation;
 
+GLuint vertexBO;
+GLuint indexBO;
 
 typedef struct Entity Entity;
 
@@ -69,10 +73,26 @@ public:
 
 };
 
+struct VertexPN {
+	Cvec3f p;
+	Cvec3f n;
+	
+	VertexPN() {}
+	VertexPN(float x, float y, float z, float nx, float ny, float nz) : p(x, y, z), n(nx, ny, nz) {}
+
+	VertexPN& operator = (const GenericVertex& v) {
+		p = v.pos;
+		n = v.normal;
+		return *this;
+	}
+};
+
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(program);
+	int timeStart = glutGet(GLUT_ELAPSED_TIME);
+	/*
 	glBindBuffer(GL_ARRAY_BUFFER, vertPostionVBO);
 	glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(positionAttribute);
@@ -85,7 +105,7 @@ void display(void) {
 	glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(normalAttribute);
 
-	int timeStart = glutGet(GLUT_ELAPSED_TIME);
+	
 
 	//Defining objectA
 	Entity matrixA;
@@ -122,11 +142,52 @@ void display(void) {
 
 	glUniform4f(positionUniform, 0.0, 0.0, 0.00f, 0.0f);
 	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+	*/
 
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBO);
+	glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, p));
+	glEnableVertexAttribArray(positionAttribute);
+	
+	glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
+	glEnableVertexAttribArray(normalAttribute);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO);
+
+	//EyeMatrix
+	Matrix4 eyeMatrix;
+	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
+
+	//Projection Matrix
+	Matrix4 projectionMatrix;
+	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
+
+	Entity matrixA;
+	matrixA.t = Cvec3(0.0, 0.0, 0.0);
+	matrixA.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 45.0 * (float)timeStart / 1000.0f);
+	matrixA.s = Cvec3(1.0, 1.0, 1.0);
+	matrixA.parent = NULL;
+	matrixA.createMatrix();
+
+	Matrix4 modelViewAMatrix = inv(eyeMatrix) * matrixA.modelMatrix;
+	GLfloat glmatrixA[16];
+	modelViewAMatrix.writeToColumnMajorMatrix(glmatrixA);
+	glUniformMatrix4fv(modelViewMatrixUniformLocation, 1, false, glmatrixA);
+
+	GLfloat glmatrixAProjection[16];
+	projectionMatrix.writeToColumnMajorMatrix(glmatrixAProjection);
+	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, false, glmatrixAProjection);
+
+	Matrix4 normalMatrix = transpose(inv(matrixA.modelMatrix));
+	GLfloat glMatrixANormal[16];
+	normalMatrix.writeToColumnMajorMatrix(glMatrixANormal);
+	glUniformMatrix4fv(normalMatrixUniformLocation, 1, false, glMatrixANormal);
+
+	
+	glDrawElements(GL_TRIANGLES, 360, GL_UNSIGNED_SHORT, 0);
 
 
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
+	glDisableVertexAttribArray(normalAttribute);
 
 	glutSwapBuffers();
 }
@@ -154,6 +215,21 @@ void init() {
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
 
+	int ibLen, vbLen;
+	getSphereVbIbLen(8,8,vbLen, ibLen);
+
+	std::vector<VertexPN> vtx(vbLen);
+	std::vector<unsigned short> idx(ibLen);
+
+	makeSphere(2, 8,8,vtx.begin(), idx.begin());
+
+	// fill our arrays
+	glGenBuffers(1, &vertexBO);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPN) * vtx.size(), vtx.data(), GL_STATIC_DRAW);
+	glGenBuffers(1, &indexBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * idx.size(), idx.data(), GL_STATIC_DRAW);
 
 
 	glGenBuffers(1, &vertPostionVBO);
