@@ -1,9 +1,9 @@
 ﻿  main.cpp
-d:\icg\icg-assignment\main.cpp(31): warning C4099: 'Entity': type name first seen using 'struct' now seen using 'class'
-  d:\icg\icg-assignment\main.cpp(31): note: see declaration of 'Entity'
-d:\icg\icg-assignment\main.cpp(204): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+d:\icg\icg-assignment\main.cpp(63): warning C4099: 'Entity': type name first seen using 'struct' now seen using 'class'
+  d:\icg\icg-assignment\main.cpp(63): note: see declaration of 'Entity'
+d:\icg\icg-assignment\main.cpp(281): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
 d:\icg\icg-assignment\geometrymaker.h(151): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  d:\icg\icg-assignment\main.cpp(224): note: see reference to function template instantiation 'void makeSphere<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>>(float,int,int,VtxOutIter,IdxOutIter)' being compiled
+  d:\icg\icg-assignment\main.cpp(229): note: see reference to function template instantiation 'void makeSphere<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>>(float,int,int,VtxOutIter,IdxOutIter)' being compiled
           with
           [
               VtxOutIter=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,
@@ -13,5 +13,21 @@ d:\icg\icg-assignment\geometrymaker.h(152): warning C4244: 'initializing': conve
 d:\icg\icg-assignment\geometrymaker.h(153): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 d:\icg\icg-assignment\geometrymaker.h(156): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
 d:\icg\icg-assignment\geometrymaker.h(164): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\icg\icg-assignment\geometrymaker.h(40): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  d:\icg\icg-assignment\main.cpp(245): note: see reference to function template instantiation 'void makePlane<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>>(float,VtxOutIter,IdxOutIter)' being compiled
+          with
+          [
+              VtxOutIter=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,
+              IdxOutIter=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>
+          ]
+d:\icg\icg-assignment\geometrymaker.h(60): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  d:\icg\icg-assignment\main.cpp(261): note: see reference to function template instantiation 'void makeCube<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>>(float,VtxOutIter,IdxOutIter)' being compiled
+          with
+          [
+              VtxOutIter=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,
+              IdxOutIter=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>
+          ]
+  glsupport.cpp
+  Generating Code...
   TemplateProject.vcxproj -> D:\ICG\ICG-Assignment\Debug\TemplateProject.exe
   TemplateProject.vcxproj -> D:\ICG\ICG-Assignment\Debug\TemplateProject.pdb (Full PDB)
