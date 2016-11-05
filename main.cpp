@@ -5,6 +5,7 @@
 #include "quat.h"
 #include <vector>
 #include "geometrymaker.h"
+#include <string>
 
 using namespace std;
 
@@ -24,8 +25,8 @@ GLuint normalAttribute;
 GLuint normalMatrixUniformLocation;
 GLuint uColorLocation;
 
-GLuint vertexBO;
-GLuint indexBO;
+GLuint vertexBO1, vertexBO2, vertexBO3;
+GLuint indexBO1, indexBO2, indexBO3;
 
 typedef struct Entity Entity;
 
@@ -46,15 +47,35 @@ struct VertexPN {
 };
 
 struct Geometry {
-	void Draw() {
-
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBO);
+	void Draw(string type) {
+	if (type == "Sphere") {
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBO1);
 		glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, p));
 		glEnableVertexAttribArray(positionAttribute);
 
 		glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
 		glEnableVertexAttribArray(normalAttribute);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO1);
+	}
+	if (type == "Plane") {
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBO2);
+		glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, p));
+		glEnableVertexAttribArray(positionAttribute);
+
+		glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
+		glEnableVertexAttribArray(normalAttribute);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO2);
+	}
+	if (type == "Cube") {
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBO3);
+		glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, p));
+		glEnableVertexAttribArray(positionAttribute);
+
+		glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
+		glEnableVertexAttribArray(normalAttribute);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO3);
+
+	}
 
 		glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 120, GL_UNSIGNED_SHORT, 0);
 	}
@@ -103,7 +124,7 @@ public:
 		}
 	}
 	
-	void Draw(Matrix4 eyeMatrix, Matrix4 projectionMatrix, GLuint modelViewMatrixUniformLocation, GLuint projectionMatrixUniformLocation, GLuint normalMatrixUniformLocation)
+	void Draw(Matrix4 eyeMatrix, Matrix4 projectionMatrix, GLuint modelViewMatrixUniformLocation, GLuint projectionMatrixUniformLocation, GLuint normalMatrixUniformLocation, string type)
 	{
 		createMatrix();
 		
@@ -122,7 +143,7 @@ public:
 		glUniformMatrix4fv(normalMatrixUniformLocation, 1, false, glMatrixANormal);
 		glUniform3f(uColorLocation, 1.0, 0.0, 0.0);
 
-		geometry.Draw();
+		geometry.Draw(type);
 	}
 };
 
@@ -147,14 +168,18 @@ void display(void) {
 	matrixA.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 45.0 * (float)timeStart / 1000.0f);
 	matrixA.s = Cvec3(1.0, 1.0, 1.0);
 	matrixA.parent = NULL;
-	matrixA.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation);
+	matrixA.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Cube");
 	
 	Entity objectB;
-	objectB.t = Cvec3(4.0, 0.0, 0.0);
+	objectB.t = Cvec3(2.0, 2.0, 0.0);
 	objectB.parent = &matrixA;
-	objectB.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation);
+	objectB.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Cube");
 
-
+	Entity objectC;
+	objectC.t = Cvec3(-3.0, 4.0, 0.0);
+	objectC.parent = NULL;
+	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
+	
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
 	glDisableVertexAttribArray(normalAttribute);
@@ -170,11 +195,11 @@ void SphereGenerator() {
 	makeSphere(2, 8, 8, vtx.begin(), idx.begin());
 
 	// fill our arrays
-	glGenBuffers(1, &vertexBO);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBO);
+	glGenBuffers(1, &vertexBO1);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBO1);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPN) * vtx.size(), vtx.data(), GL_STATIC_DRAW);
-	glGenBuffers(1, &indexBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO);
+	glGenBuffers(1, &indexBO1);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO1);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * idx.size(), idx.data(), GL_STATIC_DRAW);
 }
 
@@ -186,11 +211,11 @@ void PlaneGenerator() {
 	makePlane(4, vtx.begin(), idx.begin());
 
 	// fill our arrays
-	glGenBuffers(1, &vertexBO);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBO);
+	glGenBuffers(1, &vertexBO2);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBO2);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPN) * vtx.size(), vtx.data(), GL_STATIC_DRAW);
-	glGenBuffers(1, &indexBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO);
+	glGenBuffers(1, &indexBO2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO2);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * idx.size(), idx.data(), GL_STATIC_DRAW);
 }
 
@@ -202,11 +227,11 @@ void CubeGenerator() {
 	makeCube(3, vtx.begin(), idx.begin());
 
 	// fill our arrays
-	glGenBuffers(1, &vertexBO);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBO);
+	glGenBuffers(1, &vertexBO3);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBO3);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPN) * vtx.size(), vtx.data(), GL_STATIC_DRAW);
-	glGenBuffers(1, &indexBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO);
+	glGenBuffers(1, &indexBO3);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO3);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * idx.size(), idx.data(), GL_STATIC_DRAW);
 }
 
@@ -235,6 +260,8 @@ void init() {
 	normalAttribute = glGetAttribLocation(program, "normal");
 
 	CubeGenerator();
+	SphereGenerator();
+	PlaneGenerator();
 
 
 }
