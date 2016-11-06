@@ -29,8 +29,8 @@ GLuint normalAttribute;
 GLuint normalMatrixUniformLocation;
 GLuint uColorLocation;
 
-GLuint vertexBO1, vertexBO2, vertexBO3;
-GLuint indexBO1, indexBO2, indexBO3;
+GLuint vertexBO1, vertexBO2, vertexBO3, vertexBO4;
+GLuint indexBO1, indexBO2, indexBO3, indexBO4;
 
 typedef struct Entity Entity;
 
@@ -51,6 +51,7 @@ struct VertexPN {
 };
 
 struct Geometry {
+	int numIndices;
 	void Draw(string type) {
 	if (type == "Sphere") {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBO1);
@@ -80,8 +81,18 @@ struct Geometry {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO3);
 
 	}
+	if (type == "Object3D") {
+		cout << "Coming over here!!";
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBO4);
+		glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, p));
+		glEnableVertexAttribArray(positionAttribute);
 
-		glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 120, GL_UNSIGNED_SHORT, 0);
+		glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
+		glEnableVertexAttribArray(normalAttribute);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO4);
+
+	}
+		glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 10000, GL_UNSIGNED_SHORT, 0);
 	}
 };
 
@@ -166,7 +177,16 @@ void display(void) {
 	//Projection Matrix
 	Matrix4 projectionMatrix;
 	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
+	
+	Entity Object3D;
+	Object3D.t = Cvec3(0.0, -3.0, 0.0);
+	Object3D.r = Cvec3(0.0, 0.0, 0.0);
+	Object3D.s = Cvec3(100.0, 100.0, 1.0);
+	Object3D.parent = NULL;
+	Object3D.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Object3D");
 
+	
+	/*
 	Entity matrixA;
 	matrixA.t = Cvec3(0.0, 0.0, 0.0);
 	matrixA.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 45.0 * (float)timeStart / 1000.0f);
@@ -183,7 +203,8 @@ void display(void) {
 	objectC.t = Cvec3(-3.0, 4.0, 0.0);
 	objectC.parent = NULL;
 	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
-	
+	*/
+
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
 	glDisableVertexAttribArray(normalAttribute);
@@ -275,7 +296,9 @@ static void PrintInfo(const tinyobj::attrib_t& attrib,
 	const std::vector<tinyobj::material_t>& materials) {
 	std::cout << "# of vertices  : " << (attrib.vertices.size() / 3) << std::endl;
 	std::cout << "# of normals   : " << (attrib.normals.size() / 3) << std::endl;
-	
+	vector<VertexPN> vtx;
+	vector<unsigned short> idx;
+	/*
 	for (size_t v = 0; v < attrib.vertices.size() / 3; v++) {
 		printf("  v[%ld] = (%f, %f, %f)\n", static_cast<long>(v),
 			static_cast<const double>(attrib.vertices[3 * v + 0]),
@@ -289,6 +312,30 @@ static void PrintInfo(const tinyobj::attrib_t& attrib,
 			static_cast<const double>(attrib.normals[3 * v + 1]),
 			static_cast<const double>(attrib.normals[3 * v + 2]));
 	}
+	*/
+	for (int i = 0; i < attrib.vertices.size(); i += 3) {
+		VertexPN v;
+		v.p[0] = attrib.vertices[i];
+		v.p[1] = attrib.vertices[i + 1];
+		v.p[2] = attrib.vertices[i + 2];
+		v.n[0] = attrib.normals[i];
+		v.n[1] = attrib.normals[i + 1];
+		v.n[2] = attrib.normals[i + 2];
+		vtx.push_back(v);
+	}
+	for (int i = 0; i < shapes.size(); i++) {
+		for (int j = 0; j < shapes[i].mesh.indices.size(); j++) {
+			idx.push_back(shapes[i].mesh.indices[j].vertex_index);
+		}
+	}
+	
+	glGenBuffers(1, &vertexBO4);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBO4);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPN) * vtx.size(), vtx.data(), GL_STATIC_DRAW);
+	glGenBuffers(1, &indexBO4);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO4);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * idx.size(), idx.data(), GL_STATIC_DRAW);
+	cout << "Buffer is loaded now!!" << endl;
 
 }
 
