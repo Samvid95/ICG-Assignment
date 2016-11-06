@@ -6,6 +6,10 @@
 #include <vector>
 #include "geometrymaker.h"
 #include <string>
+#include <cassert>
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "tiny_obj_loader.h"
 
 using namespace std;
 
@@ -266,6 +270,57 @@ void init() {
 
 }
 
+static void PrintInfo(const tinyobj::attrib_t& attrib,
+	const std::vector<tinyobj::shape_t>& shapes,
+	const std::vector<tinyobj::material_t>& materials) {
+	std::cout << "# of vertices  : " << (attrib.vertices.size() / 3) << std::endl;
+	std::cout << "# of normals   : " << (attrib.normals.size() / 3) << std::endl;
+	
+	for (size_t v = 0; v < attrib.vertices.size() / 3; v++) {
+		printf("  v[%ld] = (%f, %f, %f)\n", static_cast<long>(v),
+			static_cast<const double>(attrib.vertices[3 * v + 0]),
+			static_cast<const double>(attrib.vertices[3 * v + 1]),
+			static_cast<const double>(attrib.vertices[3 * v + 2]));
+	}
+
+	for (size_t v = 0; v < attrib.normals.size() / 3; v++) {
+		printf("  n[%ld] = (%f, %f, %f)\n", static_cast<long>(v),
+			static_cast<const double>(attrib.normals[3 * v + 0]),
+			static_cast<const double>(attrib.normals[3 * v + 1]),
+			static_cast<const double>(attrib.normals[3 * v + 2]));
+	}
+
+}
+
+
+static bool TestLoadObj(const char* filename, const char* basepath = NULL,
+	bool triangulate = true) {
+	std::cout << "Loading " << filename << std::endl;
+
+	tinyobj::attrib_t attrib;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+
+
+	std::string err;
+	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filename,
+		basepath, triangulate);
+
+
+	if (!err.empty()) {
+		std::cerr << err << std::endl;
+	}
+
+	if (!ret) {
+		printf("Failed to load/parse .obj.\n");
+		return false;
+	}
+
+	PrintInfo(attrib, shapes, materials);
+
+	return true;
+}
+
 
 void reshape(int w, int h) {
 	glViewport(0, 0, w, h);
@@ -287,7 +342,11 @@ int main(int argc, char **argv) {
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
 
+	cout << "Coming overhere!!";
+	assert(true == TestLoadObj("lucy.obj", "/", false));
 	init();
 	glutMainLoop();
+	
+
 	return 0;
 }
