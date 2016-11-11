@@ -1,12 +1,17 @@
 ﻿  main.cpp
-d:\icg\icg-assignment\main.cpp(99): warning C4099: 'Entity': type name first seen using 'struct' now seen using 'class'
-  d:\icg\icg-assignment\main.cpp(99): note: see declaration of 'Entity'
-d:\icg\icg-assignment\main.cpp(272): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-d:\icg\icg-assignment\main.cpp(316): warning C4018: '<': signed/unsigned mismatch
-d:\icg\icg-assignment\main.cpp(326): warning C4018: '<': signed/unsigned mismatch
-d:\icg\icg-assignment\main.cpp(327): warning C4018: '<': signed/unsigned mismatch
+d:\icg\icg-assignment\main.cpp(78): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+d:\icg\icg-assignment\main.cpp(100): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+d:\icg\icg-assignment\main.cpp(109): warning C4099: 'Entity': type name first seen using 'struct' now seen using 'class'
+  d:\icg\icg-assignment\main.cpp(109): note: see declaration of 'Entity'
+d:\icg\icg-assignment\main.cpp(172): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+d:\icg\icg-assignment\main.cpp(175): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+d:\icg\icg-assignment\main.cpp(177): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+d:\icg\icg-assignment\main.cpp(300): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+d:\icg\icg-assignment\main.cpp(348): warning C4018: '<': signed/unsigned mismatch
+d:\icg\icg-assignment\main.cpp(358): warning C4018: '<': signed/unsigned mismatch
+d:\icg\icg-assignment\main.cpp(359): warning C4018: '<': signed/unsigned mismatch
 d:\icg\icg-assignment\geometrymaker.h(151): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  d:\icg\icg-assignment\main.cpp(220): note: see reference to function template instantiation 'void makeSphere<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>>(float,int,int,VtxOutIter,IdxOutIter)' being compiled
+  d:\icg\icg-assignment\main.cpp(248): note: see reference to function template instantiation 'void makeSphere<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>>(float,int,int,VtxOutIter,IdxOutIter)' being compiled
           with
           [
               VtxOutIter=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,
@@ -17,14 +22,14 @@ d:\icg\icg-assignment\geometrymaker.h(153): warning C4244: 'initializing': conve
 d:\icg\icg-assignment\geometrymaker.h(156): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
 d:\icg\icg-assignment\geometrymaker.h(164): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 d:\icg\icg-assignment\geometrymaker.h(40): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  d:\icg\icg-assignment\main.cpp(236): note: see reference to function template instantiation 'void makePlane<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>>(float,VtxOutIter,IdxOutIter)' being compiled
+  d:\icg\icg-assignment\main.cpp(264): note: see reference to function template instantiation 'void makePlane<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>>(float,VtxOutIter,IdxOutIter)' being compiled
           with
           [
               VtxOutIter=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,
               IdxOutIter=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>
           ]
 d:\icg\icg-assignment\geometrymaker.h(60): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  d:\icg\icg-assignment\main.cpp(252): note: see reference to function template instantiation 'void makeCube<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>>(float,VtxOutIter,IdxOutIter)' being compiled
+  d:\icg\icg-assignment\main.cpp(280): note: see reference to function template instantiation 'void makeCube<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,std::_Vector_iterator<std::_Vector_val<std::_Simple_types<unsigned short>>>>(float,VtxOutIter,IdxOutIter)' being compiled
           with
           [
               VtxOutIter=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<VertexPN>>>,

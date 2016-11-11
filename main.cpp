@@ -32,6 +32,10 @@ GLuint uColorLocation;
 GLuint vertexBO1, vertexBO2, vertexBO3, vertexBO4;
 GLuint indexBO1, indexBO2, indexBO3, indexBO4;
 
+GLuint lightDirectionUniform;
+GLuint lightColorUniform;
+GLuint specularLightColorUniform;
+
 typedef struct Entity Entity;
 
 
@@ -70,6 +74,8 @@ struct Geometry {
 		glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
 		glEnableVertexAttribArray(normalAttribute);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO2);
+
+		glUniform3f(uColorLocation, 0.0, 0.0, 0.2);
 	}
 	if (type == "Cube") {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBO3);
@@ -91,8 +97,12 @@ struct Geometry {
 		glEnableVertexAttribArray(normalAttribute);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO4);
 
+		glUniform3f(uColorLocation, 0.1, 0.67, 1);
+
+
 	}
-		glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 10000, GL_UNSIGNED_SHORT, 0);
+		
+	glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 10000, GL_UNSIGNED_SHORT, 0);
 	}
 };
 
@@ -156,8 +166,17 @@ public:
 		GLfloat glMatrixANormal[16];
 		normalMatrixtemp.writeToColumnMajorMatrix(glMatrixANormal);
 		glUniformMatrix4fv(normalMatrixUniformLocation, 1, false, glMatrixANormal);
-		glUniform3f(uColorLocation, 1.0, 0.0, 0.0);
+		
+		Cvec4 lightDirection = Cvec4(-0.6447, 7.6447, -0.6447, 0);
+		lightDirection = normalMatrix(eyeMatrix) * lightDirection;
+		glUniform3f(lightDirectionUniform, lightDirection[0], lightDirection[1], lightDirection[2]);
+		//Cvec4 lightColor = Cvec4(-0.5, 0.0, 0.0, 0);
+		//lightColor = normalMatrix(eyeMatrix) * lightColor;
+		glUniform3f(lightColorUniform, 0.5, 0.3 , 0.7);
+		//glUniform3f(lightColorUniform, 0.5, 0.0, 0.0);
+		glUniform3f(specularLightColorUniform, 0.0, 0.6, 0.0);
 
+			
 		geometry.Draw(type);
 	}
 };
@@ -178,13 +197,20 @@ void display(void) {
 	Matrix4 projectionMatrix;
 	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
 	
+	
 	Entity Object3D;
-	Object3D.t = Cvec3(0.0, -3.0, 0.0);
+	Object3D.t = Cvec3(0.0, -5.0, 0.0);
 	Object3D.r = Cvec3(0.0, 0.0, 0.0);
-	Object3D.s = Cvec3(100.0, 100.0, 1.0);
+	Object3D.s = Cvec3(100.0, 100.0, 100.0);
 	Object3D.parent = NULL;
 	Object3D.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Object3D");
-
+	
+	Entity plane;
+	plane.t = Cvec3(0.0, -5.3, 0.0);
+	plane.r = Cvec3(20.0, 0.0, 0.0);
+	plane.s = Cvec3(5.0, 1.0, 5.0);
+	plane.parent = NULL;
+	plane.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
 	
 	/*
 	Entity matrixA;
@@ -192,8 +218,9 @@ void display(void) {
 	matrixA.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 45.0 * (float)timeStart / 1000.0f);
 	matrixA.s = Cvec3(1.0, 1.0, 1.0);
 	matrixA.parent = NULL;
-	matrixA.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Cube");
-	
+	matrixA.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
+	*/
+	/*
 	Entity objectB;
 	objectB.t = Cvec3(2.0, 2.0, 0.0);
 	objectB.parent = &matrixA;
@@ -204,6 +231,7 @@ void display(void) {
 	objectC.parent = NULL;
 	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
 	*/
+	
 
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
@@ -283,6 +311,10 @@ void init() {
 
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
+	lightDirectionUniform = glGetUniformLocation(program, "lightDirection");
+	lightColorUniform = glGetUniformLocation(program, "lightColor");
+	specularLightColorUniform = glGetUniformLocation(program, "specularLightColor");
+
 
 	CubeGenerator();
 	SphereGenerator();
