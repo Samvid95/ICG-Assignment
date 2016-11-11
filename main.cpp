@@ -32,9 +32,10 @@ GLuint uColorLocation;
 GLuint vertexBO1, vertexBO2, vertexBO3, vertexBO4;
 GLuint indexBO1, indexBO2, indexBO3, indexBO4;
 
-GLuint lightDirectionUniform;
-GLuint lightColorUniform;
-GLuint specularLightColorUniform;
+GLuint lightDirectionUniform0, lightDirectionUniform1;
+GLuint lightColorUniform0, lightColorUniform1;
+GLuint specularLightColorUniform0, specularLightColorUniform1;
+GLuint lightPositionUniform0, lightPositionUniform1;
 
 typedef struct Entity Entity;
 
@@ -167,15 +168,26 @@ public:
 		normalMatrixtemp.writeToColumnMajorMatrix(glMatrixANormal);
 		glUniformMatrix4fv(normalMatrixUniformLocation, 1, false, glMatrixANormal);
 		
-		Cvec4 lightDirection = Cvec4(-0.6447, 7.6447, -0.6447, 0);
-		lightDirection = normalMatrix(eyeMatrix) * lightDirection;
-		glUniform3f(lightDirectionUniform, lightDirection[0], lightDirection[1], lightDirection[2]);
-		//Cvec4 lightColor = Cvec4(-0.5, 0.0, 0.0, 0);
-		//lightColor = normalMatrix(eyeMatrix) * lightColor;
-		glUniform3f(lightColorUniform, 0.5, 0.3 , 0.7);
-		//glUniform3f(lightColorUniform, 0.5, 0.0, 0.0);
-		glUniform3f(specularLightColorUniform, 0.0, 0.6, 0.0);
 
+		Cvec4 lightDirection0 = Cvec4(-1, 2.6447, -0.6447, 0);
+		Cvec4 lightDirection1 = Cvec4(1, 2.6447, -0.6447, 0);
+		lightDirection0 = normalMatrix(eyeMatrix) * lightDirection0;
+		lightDirection1 = normalMatrix(eyeMatrix) * lightDirection1;
+		glUniform3f(lightDirectionUniform0, lightDirection0[0], lightDirection0[1], lightDirection0[2]);
+		glUniform3f(lightDirectionUniform1, lightDirection1[0], lightDirection1[1], lightDirection1[2]);
+
+		Cvec4 lightPosition0 = Cvec4(-1, 2.6447, -0.6447, 0);
+		Cvec4 lightPosition1 = Cvec4(1, 2.6447, -0.6447, 0);
+		lightPosition0 = normalMatrix(eyeMatrix) * lightPosition0;
+		lightPosition1 = normalMatrix(eyeMatrix) * lightPosition1;
+		glUniform3f(lightPositionUniform0, lightPosition0[0], lightPosition0[1], lightPosition0[2]);
+		glUniform3f(lightPositionUniform0, lightPosition1[0], lightPosition1[1], lightPosition1[2]);
+
+		glUniform3f(lightColorUniform0, 0.9, 0.3, 0.0);
+		glUniform3f(lightColorUniform1, 0.0, 0.0, 0.7);
+
+		glUniform3f(specularLightColorUniform0, 0.0, 0.6, 0.2);
+		glUniform3f(specularLightColorUniform1, 0.7, 0.6, 0.0);
 			
 		geometry.Draw(type);
 	}
@@ -200,7 +212,7 @@ void display(void) {
 	
 	Entity Object3D;
 	Object3D.t = Cvec3(0.0, -5.0, 0.0);
-	Object3D.r = Cvec3(0.0, 0.0, 0.0);
+	Object3D.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 0.0);
 	Object3D.s = Cvec3(100.0, 100.0, 100.0);
 	Object3D.parent = NULL;
 	Object3D.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Object3D");
@@ -311,10 +323,16 @@ void init() {
 
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
-	lightDirectionUniform = glGetUniformLocation(program, "lightDirection");
-	lightColorUniform = glGetUniformLocation(program, "lightColor");
-	specularLightColorUniform = glGetUniformLocation(program, "specularLightColor");
 
+	
+
+	lightPositionUniform0 = glGetUniformLocation(program, "lights[0].lightPosition");
+	lightPositionUniform1 = glGetUniformLocation(program, "lights[1].lightPosition");
+
+	lightColorUniform0 = glGetUniformLocation(program, "lights[0].lightColor");
+	lightColorUniform1 = glGetUniformLocation(program, "lights[1].lightColor");
+	specularLightColorUniform0 = glGetUniformLocation(program, "light[0].specularLightColor");
+	specularLightColorUniform1 = glGetUniformLocation(program, "light[1].specularLightColor");
 
 	CubeGenerator();
 	SphereGenerator();
