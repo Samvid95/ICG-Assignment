@@ -18,6 +18,8 @@ GLuint vertPostionVBO;
 GLuint normalPositionVBO;
 GLuint positionAttribute;
 
+GLuint texCoordAttribute;
+
 GLuint vertColorVBO;
 GLuint colorAttribute;
 
@@ -32,10 +34,15 @@ GLuint uColorLocation;
 GLuint vertexBO1, vertexBO2, vertexBO3, vertexBO4;
 GLuint indexBO1, indexBO2, indexBO3, indexBO4;
 
+<<<<<<< HEAD
 GLuint lightDirectionUniform0, lightDirectionUniform1;
 GLuint lightColorUniform0, lightColorUniform1;
 GLuint specularLightColorUniform0, specularLightColorUniform1;
 GLuint lightPositionUniform0, lightPositionUniform1;
+=======
+GLuint diffuseTexture;
+GLuint diffuseTextureUniformLocation;
+>>>>>>> 3Dtexture
 
 typedef struct Entity Entity;
 
@@ -44,6 +51,7 @@ typedef struct Entity Entity;
 struct VertexPN {
 	Cvec3f p;
 	Cvec3f n;
+	Cvec2f t;
 	
 	VertexPN() {}
 	VertexPN(float x, float y, float z, float nx, float ny, float nz) : p(x, y, z), n(nx, ny, nz) {}
@@ -51,6 +59,7 @@ struct VertexPN {
 	VertexPN& operator = (const GenericVertex& v) {
 		p = v.pos;
 		n = v.normal;
+		t = v.tex;
 		return *this;
 	}
 };
@@ -90,9 +99,17 @@ struct Geometry {
 	}
 	if (type == "Object3D") {
 		cout << "Coming over here!!";
+		
+		glUniform1i(diffuseTextureUniformLocation, 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
+		
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBO4);
 		glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, p));
 		glEnableVertexAttribArray(positionAttribute);
+
+		glEnableVertexAttribArray(texCoordAttribute);
+		glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, t));
 
 		glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
 		glEnableVertexAttribArray(normalAttribute);
@@ -102,8 +119,12 @@ struct Geometry {
 
 
 	}
+<<<<<<< HEAD
 		
 	glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 10000, GL_UNSIGNED_SHORT, 0);
+=======
+		glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 100000, GL_UNSIGNED_SHORT, 0);
+>>>>>>> 3Dtexture
 	}
 };
 
@@ -211,6 +232,7 @@ void display(void) {
 	
 	
 	Entity Object3D;
+<<<<<<< HEAD
 	Object3D.t = Cvec3(0.0, -5.0, 0.0);
 	Object3D.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 0.0);
 	Object3D.s = Cvec3(100.0, 100.0, 100.0);
@@ -224,15 +246,27 @@ void display(void) {
 	plane.parent = NULL;
 	plane.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
 	
+=======
+	Object3D.t = Cvec3(0.0, -3.0, 0.0);
+	Object3D.r = Cvec3(0.0, 0.0, 0.0);
+	Object3D.s = Cvec3(1.0, 1.0, 1.0);
+	Object3D.parent = NULL;
+	Object3D.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Object3D");
+
+>>>>>>> 3Dtexture
 	/*
 	Entity matrixA;
 	matrixA.t = Cvec3(0.0, 0.0, 0.0);
-	matrixA.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 45.0 * (float)timeStart / 1000.0f);
+	matrixA.r = Cvec3(30.0, 0.0, 0.0);
 	matrixA.s = Cvec3(1.0, 1.0, 1.0);
 	matrixA.parent = NULL;
 	matrixA.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
+<<<<<<< HEAD
 	*/
 	/*
+=======
+	
+>>>>>>> 3Dtexture
 	Entity objectB;
 	objectB.t = Cvec3(2.0, 2.0, 0.0);
 	objectB.parent = &matrixA;
@@ -309,7 +343,7 @@ void init() {
 	glReadBuffer(GL_BACK);
 
 
-	glClearColor(0.2, 0.2, 0.2, 0.0);
+	glClearColor(1, 1, 1, 0.0);
 	program = glCreateProgram();
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
 
@@ -324,6 +358,7 @@ void init() {
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
 
+<<<<<<< HEAD
 	
 
 	lightPositionUniform0 = glGetUniformLocation(program, "lights[0].lightPosition");
@@ -333,6 +368,11 @@ void init() {
 	lightColorUniform1 = glGetUniformLocation(program, "lights[1].lightColor");
 	specularLightColorUniform0 = glGetUniformLocation(program, "light[0].specularLightColor");
 	specularLightColorUniform1 = glGetUniformLocation(program, "light[1].specularLightColor");
+=======
+	texCoordAttribute = glGetAttribLocation(program, "texCoord");
+	diffuseTexture = loadGLTexture("Monk_D.tga");
+	diffuseTextureUniformLocation = glGetUniformLocation(program, "diffuseTexture");
+>>>>>>> 3Dtexture
 
 	CubeGenerator();
 	SphereGenerator();
@@ -346,6 +386,7 @@ static void PrintInfo(const tinyobj::attrib_t& attrib,
 	const std::vector<tinyobj::material_t>& materials) {
 	std::cout << "# of vertices  : " << (attrib.vertices.size() / 3) << std::endl;
 	std::cout << "# of normals   : " << (attrib.normals.size() / 3) << std::endl;
+	std::cout << "# of texture coordinates : " << (attrib.texcoords.size() / 2) << std::endl;
 	vector<VertexPN> vtx;
 	vector<unsigned short> idx;
 	/*
@@ -363,19 +404,23 @@ static void PrintInfo(const tinyobj::attrib_t& attrib,
 			static_cast<const double>(attrib.normals[3 * v + 2]));
 	}
 	*/
-	for (int i = 0; i < attrib.vertices.size(); i += 3) {
-		VertexPN v;
-		v.p[0] = attrib.vertices[i];
-		v.p[1] = attrib.vertices[i + 1];
-		v.p[2] = attrib.vertices[i + 2];
-		v.n[0] = attrib.normals[i];
-		v.n[1] = attrib.normals[i + 1];
-		v.n[2] = attrib.normals[i + 2];
-		vtx.push_back(v);
-	}
+	
 	for (int i = 0; i < shapes.size(); i++) {
 		for (int j = 0; j < shapes[i].mesh.indices.size(); j++) {
-			idx.push_back(shapes[i].mesh.indices[j].vertex_index);
+			unsigned int vertexOffset = shapes[i].mesh.indices[j].vertex_index * 3;
+			unsigned int normalOffset = shapes[i].mesh.indices[j].normal_index * 3;
+			unsigned int texOffset = shapes[i].mesh.indices[j].texcoord_index * 2;
+			VertexPN v;
+			v.p[0] = attrib.vertices[vertexOffset];
+			v.p[1] = attrib.vertices[vertexOffset + 1];
+			v.p[2] = attrib.vertices[vertexOffset + 2];
+			v.n[0] = attrib.normals[normalOffset];
+			v.n[1] = attrib.normals[normalOffset + 1];
+			v.n[2] = attrib.normals[normalOffset + 2];
+			v.t[0] = attrib.texcoords[texOffset];
+			v.t[1] = 1.0 - attrib.texcoords[texOffset + 1];
+			vtx.push_back(v);
+			idx.push_back(vtx.size() - 1);
 		}
 	}
 	
@@ -440,7 +485,7 @@ int main(int argc, char **argv) {
 	glutIdleFunc(idle);
 
 	cout << "Coming overhere!!";
-	assert(true == TestLoadObj("lucy.obj", "/", false));
+	assert(true == TestLoadObj("monk.obj", "/", false));
 	init();
 	glutMainLoop();
 	
