@@ -283,7 +283,7 @@ void init() {
 	glReadBuffer(GL_BACK);
 
 
-	glClearColor(0.2, 0.2, 0.2, 0.0);
+	glClearColor(1, 1, 1, 0.0);
 	program = glCreateProgram();
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
 
@@ -332,25 +332,6 @@ static void PrintInfo(const tinyobj::attrib_t& attrib,
 			static_cast<const double>(attrib.normals[3 * v + 2]));
 	}
 	*/
-	/*
-	for (int i = 0; i < attrib.vertices.size(); i += 3) {
-		VertexPN v;
-		v.p[0] = attrib.vertices[i];
-		v.p[1] = attrib.vertices[i + 1];
-		v.p[2] = attrib.vertices[i + 2];
-		v.n[0] = attrib.normals[i];
-		v.n[1] = attrib.normals[i + 1];
-		v.n[2] = attrib.normals[i + 2];
-		v.t[0] = attrib.texcoords[i];
-		v.t[1] = 1.0 - attrib.texcoords[i + 1];
-		vtx.push_back(v);
-	}
-	for (int i = 0; i < shapes.size(); i++) {
-		for (int j = 0; j < shapes[i].mesh.indices.size(); j++) {
-			idx.push_back(shapes[i].mesh.indices[j].vertex_index);
-		}
-	}
-	*/
 	
 	for (int i = 0; i < shapes.size(); i++) {
 		for (int j = 0; j < shapes[i].mesh.indices.size(); j++) {
@@ -367,7 +348,7 @@ static void PrintInfo(const tinyobj::attrib_t& attrib,
 			v.t[0] = attrib.texcoords[texOffset];
 			v.t[1] = 1.0 - attrib.texcoords[texOffset + 1];
 			vtx.push_back(v);
-			idx.push_back(shapes[i].mesh.indices[j].vertex_index);
+			idx.push_back(vtx.size() - 1);
 		}
 	}
 	
