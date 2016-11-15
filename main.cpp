@@ -34,15 +34,8 @@ GLuint uColorLocation;
 GLuint vertexBO1, vertexBO2, vertexBO3, vertexBO4;
 GLuint indexBO1, indexBO2, indexBO3, indexBO4;
 
-<<<<<<< HEAD
-GLuint lightDirectionUniform0, lightDirectionUniform1;
-GLuint lightColorUniform0, lightColorUniform1;
-GLuint specularLightColorUniform0, specularLightColorUniform1;
-GLuint lightPositionUniform0, lightPositionUniform1;
-=======
 GLuint diffuseTexture;
 GLuint diffuseTextureUniformLocation;
->>>>>>> 3Dtexture
 
 typedef struct Entity Entity;
 
@@ -84,8 +77,6 @@ struct Geometry {
 		glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
 		glEnableVertexAttribArray(normalAttribute);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO2);
-
-		glUniform3f(uColorLocation, 0.0, 0.0, 0.2);
 	}
 	if (type == "Cube") {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBO3);
@@ -115,16 +106,8 @@ struct Geometry {
 		glEnableVertexAttribArray(normalAttribute);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO4);
 
-		glUniform3f(uColorLocation, 0.1, 0.67, 1);
-
-
 	}
-<<<<<<< HEAD
-		
-	glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 10000, GL_UNSIGNED_SHORT, 0);
-=======
 		glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 100000, GL_UNSIGNED_SHORT, 0);
->>>>>>> 3Dtexture
 	}
 };
 
@@ -188,28 +171,8 @@ public:
 		GLfloat glMatrixANormal[16];
 		normalMatrixtemp.writeToColumnMajorMatrix(glMatrixANormal);
 		glUniformMatrix4fv(normalMatrixUniformLocation, 1, false, glMatrixANormal);
-		
+		glUniform3f(uColorLocation, 1.0, 0.0, 0.0);
 
-		Cvec4 lightDirection0 = Cvec4(-1, 2.6447, -0.6447, 0);
-		Cvec4 lightDirection1 = Cvec4(1, 2.6447, -0.6447, 0);
-		lightDirection0 = normalMatrix(eyeMatrix) * lightDirection0;
-		lightDirection1 = normalMatrix(eyeMatrix) * lightDirection1;
-		glUniform3f(lightDirectionUniform0, lightDirection0[0], lightDirection0[1], lightDirection0[2]);
-		glUniform3f(lightDirectionUniform1, lightDirection1[0], lightDirection1[1], lightDirection1[2]);
-
-		Cvec4 lightPosition0 = Cvec4(-1, 2.6447, -0.6447, 0);
-		Cvec4 lightPosition1 = Cvec4(1, 2.6447, -0.6447, 0);
-		lightPosition0 = normalMatrix(eyeMatrix) * lightPosition0;
-		lightPosition1 = normalMatrix(eyeMatrix) * lightPosition1;
-		glUniform3f(lightPositionUniform0, lightPosition0[0], lightPosition0[1], lightPosition0[2]);
-		glUniform3f(lightPositionUniform0, lightPosition1[0], lightPosition1[1], lightPosition1[2]);
-
-		glUniform3f(lightColorUniform0, 0.9, 0.3, 0.0);
-		glUniform3f(lightColorUniform1, 0.0, 0.0, 0.7);
-
-		glUniform3f(specularLightColorUniform0, 0.0, 0.6, 0.2);
-		glUniform3f(specularLightColorUniform1, 0.7, 0.6, 0.0);
-			
 		geometry.Draw(type);
 	}
 };
@@ -230,30 +193,13 @@ void display(void) {
 	Matrix4 projectionMatrix;
 	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
 	
-	
 	Entity Object3D;
-<<<<<<< HEAD
-	Object3D.t = Cvec3(0.0, -5.0, 0.0);
-	Object3D.r = Cvec3(0.0, 45.0 * (float)timeStart / 1000.0f, 0.0);
-	Object3D.s = Cvec3(100.0, 100.0, 100.0);
-	Object3D.parent = NULL;
-	Object3D.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Object3D");
-	
-	Entity plane;
-	plane.t = Cvec3(0.0, -5.3, 0.0);
-	plane.r = Cvec3(20.0, 0.0, 0.0);
-	plane.s = Cvec3(5.0, 1.0, 5.0);
-	plane.parent = NULL;
-	plane.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
-	
-=======
 	Object3D.t = Cvec3(0.0, -3.0, 0.0);
 	Object3D.r = Cvec3(0.0, 0.0, 0.0);
 	Object3D.s = Cvec3(1.0, 1.0, 1.0);
 	Object3D.parent = NULL;
 	Object3D.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Object3D");
 
->>>>>>> 3Dtexture
 	/*
 	Entity matrixA;
 	matrixA.t = Cvec3(0.0, 0.0, 0.0);
@@ -261,12 +207,7 @@ void display(void) {
 	matrixA.s = Cvec3(1.0, 1.0, 1.0);
 	matrixA.parent = NULL;
 	matrixA.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
-<<<<<<< HEAD
-	*/
-	/*
-=======
 	
->>>>>>> 3Dtexture
 	Entity objectB;
 	objectB.t = Cvec3(2.0, 2.0, 0.0);
 	objectB.parent = &matrixA;
@@ -277,7 +218,6 @@ void display(void) {
 	objectC.parent = NULL;
 	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
 	*/
-	
 
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
@@ -343,7 +283,7 @@ void init() {
 	glReadBuffer(GL_BACK);
 
 
-	glClearColor(1, 1, 1, 0.0);
+	glClearColor(0.2, 0.2, 0.2, 0.0);
 	program = glCreateProgram();
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
 
@@ -358,21 +298,9 @@ void init() {
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
 
-<<<<<<< HEAD
-	
-
-	lightPositionUniform0 = glGetUniformLocation(program, "lights[0].lightPosition");
-	lightPositionUniform1 = glGetUniformLocation(program, "lights[1].lightPosition");
-
-	lightColorUniform0 = glGetUniformLocation(program, "lights[0].lightColor");
-	lightColorUniform1 = glGetUniformLocation(program, "lights[1].lightColor");
-	specularLightColorUniform0 = glGetUniformLocation(program, "light[0].specularLightColor");
-	specularLightColorUniform1 = glGetUniformLocation(program, "light[1].specularLightColor");
-=======
 	texCoordAttribute = glGetAttribLocation(program, "texCoord");
 	diffuseTexture = loadGLTexture("Monk_D.tga");
 	diffuseTextureUniformLocation = glGetUniformLocation(program, "diffuseTexture");
->>>>>>> 3Dtexture
 
 	CubeGenerator();
 	SphereGenerator();
@@ -404,6 +332,25 @@ static void PrintInfo(const tinyobj::attrib_t& attrib,
 			static_cast<const double>(attrib.normals[3 * v + 2]));
 	}
 	*/
+	/*
+	for (int i = 0; i < attrib.vertices.size(); i += 3) {
+		VertexPN v;
+		v.p[0] = attrib.vertices[i];
+		v.p[1] = attrib.vertices[i + 1];
+		v.p[2] = attrib.vertices[i + 2];
+		v.n[0] = attrib.normals[i];
+		v.n[1] = attrib.normals[i + 1];
+		v.n[2] = attrib.normals[i + 2];
+		v.t[0] = attrib.texcoords[i];
+		v.t[1] = 1.0 - attrib.texcoords[i + 1];
+		vtx.push_back(v);
+	}
+	for (int i = 0; i < shapes.size(); i++) {
+		for (int j = 0; j < shapes[i].mesh.indices.size(); j++) {
+			idx.push_back(shapes[i].mesh.indices[j].vertex_index);
+		}
+	}
+	*/
 	
 	for (int i = 0; i < shapes.size(); i++) {
 		for (int j = 0; j < shapes[i].mesh.indices.size(); j++) {
@@ -420,7 +367,7 @@ static void PrintInfo(const tinyobj::attrib_t& attrib,
 			v.t[0] = attrib.texcoords[texOffset];
 			v.t[1] = 1.0 - attrib.texcoords[texOffset + 1];
 			vtx.push_back(v);
-			idx.push_back(vtx.size() - 1);
+			idx.push_back(vtx.size()-1);
 		}
 	}
 	
