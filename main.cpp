@@ -37,6 +37,9 @@ GLuint indexBO1, indexBO2, indexBO3, indexBO4;
 GLuint diffuseTexture;
 GLuint diffuseTextureUniformLocation;
 
+GLuint lightDirectionUniform;
+GLuint lightColorUniform;
+
 typedef struct Entity Entity;
 
 
@@ -68,6 +71,8 @@ struct Geometry {
 		glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
 		glEnableVertexAttribArray(normalAttribute);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO1);
+
+		glUniform3f(uColorLocation, 1.0, 0.0, 0.0);
 	}
 	if (type == "Plane") {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBO2);
@@ -89,7 +94,7 @@ struct Geometry {
 
 	}
 	if (type == "Object3D") {
-		cout << "Coming over here!!";
+	
 		
 		glUniform1i(diffuseTextureUniformLocation, 0);
 		glActiveTexture(GL_TEXTURE0);
@@ -105,6 +110,7 @@ struct Geometry {
 		glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
 		glEnableVertexAttribArray(normalAttribute);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO4);
+
 
 	}
 		glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 100000, GL_UNSIGNED_SHORT, 0);
@@ -171,7 +177,12 @@ public:
 		GLfloat glMatrixANormal[16];
 		normalMatrixtemp.writeToColumnMajorMatrix(glMatrixANormal);
 		glUniformMatrix4fv(normalMatrixUniformLocation, 1, false, glMatrixANormal);
-		glUniform3f(uColorLocation, 1.0, 0.0, 0.0);
+		if (type == "Plane") {
+			glUniform3f(uColorLocation, 1.0, 0.0, 0.0);
+		}
+		else {
+			glUniform3f(uColorLocation, 1.0, 1.0, 1.0);
+		}
 
 		geometry.Draw(type);
 	}
@@ -187,27 +198,34 @@ void display(void) {
 	
 	//EyeMatrix
 	Matrix4 eyeMatrix;
-	eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
+	Matrix4 tempTmatrix;
+	tempTmatrix = tempTmatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
+	Matrix4 tempTnegativematrix = tempTnegativematrix.makeTranslation(Cvec3(0.0, 0.0, -35.0));
+	//eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
+	Quat rot = Quat::makeYRotation(30.0);
+	Matrix4 tempRmatrix = quatToMatrix(rot);
+	eyeMatrix = tempTmatrix;
+	
 
 	//Projection Matrix
 	Matrix4 projectionMatrix;
 	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
 	
 	Entity Object3D;
-	Object3D.t = Cvec3(0.0, -3.0, 0.0);
+	Object3D.t = Cvec3(0.0, -3.0, 4.0);
 	Object3D.r = Cvec3(0.0, 0.0, 0.0);
 	Object3D.s = Cvec3(1.0, 1.0, 1.0);
 	Object3D.parent = NULL;
 	Object3D.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Object3D");
 
-	/*
+	
 	Entity matrixA;
-	matrixA.t = Cvec3(0.0, 0.0, 0.0);
-	matrixA.r = Cvec3(30.0, 0.0, 0.0);
-	matrixA.s = Cvec3(1.0, 1.0, 1.0);
+	matrixA.t = Cvec3(0.0, -4.0, 0.0);
+	matrixA.r = Cvec3(0.0, 0.0, 0.0);
+	matrixA.s = Cvec3(20.0, 20.0, 20.0);
 	matrixA.parent = NULL;
 	matrixA.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
-	
+	/*
 	Entity objectB;
 	objectB.t = Cvec3(2.0, 2.0, 0.0);
 	objectB.parent = &matrixA;
@@ -218,6 +236,11 @@ void display(void) {
 	objectC.parent = NULL;
 	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
 	*/
+
+	glUniform3f(lightColorUniform, 1.0, 1.0, 0.1);
+	Cvec4 lightDirection = Cvec4(0.6447, 0.6447, 0.6447, 0);
+	lightDirection = normalMatrix(eyeMatrix) * lightDirection;
+	glUniform3f(lightDirectionUniform, lightDirection[0], lightDirection[1], lightDirection[2]);
 
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
@@ -297,6 +320,8 @@ void init() {
 
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
+	lightDirectionUniform = glGetUniformLocation(program, "lightDirection");
+	lightColorUniform = glGetUniformLocation(program, "lightColor");
 
 	texCoordAttribute = glGetAttribLocation(program, "texCoord");
 	diffuseTexture = loadGLTexture("Monk_D.tga");
@@ -432,7 +457,7 @@ int main(int argc, char **argv) {
 	glutIdleFunc(idle);
 
 	cout << "Coming overhere!!";
-	assert(true == TestLoadObj("monk.obj", "/", false));
+	assert(true == TestLoadObj("Monk_Giveaway/Monk_Giveaway_Fixed.obj", "/", false));
 	init();
 	glutMainLoop();
 	
