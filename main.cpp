@@ -232,13 +232,13 @@ void display(void) {
 	objectB.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Cube");
 
 	Entity objectC;
-	objectC.t = Cvec3(-3.0, 4.0, 0.0);
+	objectC.t = Cvec3(-3.0, 4.0, 0.0);du
 	objectC.parent = NULL;
 	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
 	*/
 
 	glUniform3f(lightColorUniform, 1.0, 1.0, 0.1);
-	Cvec4 lightDirection = Cvec4(0.6447, 0.6447, 0.6447, 0);
+	Cvec4 lightDirection = Cvec4(sin(timeStart/1000.0) * 10, sin(timeStart/1000.0) * 10, 0.6447, 0);
 	lightDirection = normalMatrix(eyeMatrix) * lightDirection;
 	glUniform3f(lightDirectionUniform, lightDirection[0], lightDirection[1], lightDirection[2]);
 
@@ -306,7 +306,7 @@ void init() {
 	glReadBuffer(GL_BACK);
 
 
-	glClearColor(0.2, 0.2, 0.2, 0.0);
+	glClearColor(1.0, 1.0, 1.0, 0.0);
 	program = glCreateProgram();
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
 
