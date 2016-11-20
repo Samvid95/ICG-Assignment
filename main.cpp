@@ -37,6 +37,10 @@ GLuint indexBO1, indexBO2, indexBO3, indexBO4;
 GLuint diffuseTexture;
 GLuint diffuseTextureUniformLocation;
 
+GLuint specularTexture;
+GLuint specularTextureUniformLocation;
+
+
 GLuint lightDirectionUniform;
 GLuint lightColorUniform;
 GLuint specularLightColorUniform;
@@ -100,6 +104,10 @@ struct Geometry {
 		glUniform1i(diffuseTextureUniformLocation, 0);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
+
+		glUniform1i(specularTextureUniformLocation, 1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularTexture);
 		
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBO4);
 		glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, p));
@@ -303,7 +311,7 @@ void init() {
 	glReadBuffer(GL_BACK);
 
 
-	glClearColor(1.0, 1.0, 1.0, 0.0);
+	glClearColor(0.2, 0.2, 0.2, 0.0);
 	program = glCreateProgram();
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
 
@@ -317,11 +325,14 @@ void init() {
 
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
-	
-
 	texCoordAttribute = glGetAttribLocation(program, "texCoord");
-	diffuseTexture = loadGLTexture("Monk_D.tga");
+
+	diffuseTexture = loadGLTexture("Monk_Giveaway/Monk_D.tga");
 	diffuseTextureUniformLocation = glGetUniformLocation(program, "diffuseTexture");
+
+	specularTexture = loadGLTexture("Monk_Giveaway/Monk_S.tga");
+	specularTextureUniformLocation = glGetUniformLocation(program, "specularTexture");
+
 	
 	lightDirectionUniform = glGetUniformLocation(program, "lights[0].lightDirection");
 	lightColorUniform = glGetUniformLocation(program, "lights[0].lightColor");

@@ -3,6 +3,7 @@ varying vec2 varyingTexCoord;
 varying vec3 varyingPosition;
 
 uniform sampler2D diffuseTexture;
+uniform sampler2D specularTexture;
 
 struct Light {
 	vec3 lightDirection;
@@ -29,6 +30,6 @@ void main() {
 		specularColor = lights[i].specularLightColor * specular;
 	}
 	
-	vec3 intensity = ((texture2D(diffuseTexture, varyingTexCoord).xyz) * diffuseColor) + specularColor;
+	vec3 intensity = ((texture2D(diffuseTexture, varyingTexCoord).xyz) * diffuseColor) +((texture2D(specularTexture, varyingTexCoord).x) * specularColor);
 	gl_FragColor = vec4(intensity.xyz,1.0);;
 }
