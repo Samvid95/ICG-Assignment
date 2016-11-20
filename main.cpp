@@ -39,6 +39,7 @@ GLuint diffuseTextureUniformLocation;
 
 GLuint lightDirectionUniform;
 GLuint lightColorUniform;
+GLuint specularLightColorUniform;
 
 typedef struct Entity Entity;
 
@@ -72,7 +73,7 @@ struct Geometry {
 		glEnableVertexAttribArray(normalAttribute);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO1);
 
-		glUniform3f(uColorLocation, 1.0, 0.0, 0.0);
+		
 	}
 	if (type == "Plane") {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBO2);
@@ -177,12 +178,7 @@ public:
 		GLfloat glMatrixANormal[16];
 		normalMatrixtemp.writeToColumnMajorMatrix(glMatrixANormal);
 		glUniformMatrix4fv(normalMatrixUniformLocation, 1, false, glMatrixANormal);
-		if (type == "Plane") {
-			glUniform3f(uColorLocation, 1.0, 0.0, 0.0);
-		}
-		else {
-			glUniform3f(uColorLocation, 1.0, 1.0, 1.0);
-		}
+		
 
 		geometry.Draw(type);
 	}
@@ -238,6 +234,7 @@ void display(void) {
 	*/
 
 	glUniform3f(lightColorUniform, 1.0, 1.0, 0.1);
+	glUniform3f(specularLightColorUniform, 0.4, 0.3, 0.2);
 	Cvec4 lightDirection = Cvec4(sin(timeStart/1000.0) * 10, sin(timeStart/1000.0) * 10, 0.6447, 0);
 	lightDirection = normalMatrix(eyeMatrix) * lightDirection;
 	glUniform3f(lightDirectionUniform, lightDirection[0], lightDirection[1], lightDirection[2]);
@@ -316,7 +313,7 @@ void init() {
 	modelViewMatrixUniformLocation = glGetUniformLocation(program, "modelViewMatrix");
 	projectionMatrixUniformLocation = glGetUniformLocation(program, "projectionMatrix");
 	positionUniform = glGetUniformLocation(program, "modelPosition");
-	uColorLocation = glGetUniformLocation(program, "uColor");
+	
 
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
@@ -326,6 +323,7 @@ void init() {
 	texCoordAttribute = glGetAttribLocation(program, "texCoord");
 	diffuseTexture = loadGLTexture("Monk_D.tga");
 	diffuseTextureUniformLocation = glGetUniformLocation(program, "diffuseTexture");
+	specularLightColorUniform = glGetUniformLocation(program, "specularLightColor");
 
 	CubeGenerator();
 	SphereGenerator();
