@@ -317,13 +317,15 @@ void init() {
 
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
-	lightDirectionUniform = glGetUniformLocation(program, "lightDirection");
-	lightColorUniform = glGetUniformLocation(program, "lightColor");
+	
 
 	texCoordAttribute = glGetAttribLocation(program, "texCoord");
 	diffuseTexture = loadGLTexture("Monk_D.tga");
 	diffuseTextureUniformLocation = glGetUniformLocation(program, "diffuseTexture");
-	specularLightColorUniform = glGetUniformLocation(program, "specularLightColor");
+	
+	lightDirectionUniform = glGetUniformLocation(program, "lights[0].lightDirection");
+	lightColorUniform = glGetUniformLocation(program, "lights[0].lightColor");
+	specularLightColorUniform = glGetUniformLocation(program, "lights[0].specularLightColor");
 
 	CubeGenerator();
 	SphereGenerator();
