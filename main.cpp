@@ -41,11 +41,6 @@ GLuint lightDirectionUniform;
 GLuint lightColorUniform;
 GLuint specularLightColorUniform;
 
-GLuint lightDirectionUniform1;
-GLuint lightColorUniform1;
-GLuint specularLightColorUniform1;
-
-
 typedef struct Entity Entity;
 
 
@@ -219,14 +214,14 @@ void display(void) {
 	Object3D.parent = NULL;
 	Object3D.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Object3D");
 
-	
+	/*
 	Entity matrixA;
 	matrixA.t = Cvec3(0.0, -4.0, 0.0);
 	matrixA.r = Cvec3(0.0, 0.0, 0.0);
 	matrixA.s = Cvec3(20.0, 20.0, 20.0);
 	matrixA.parent = NULL;
 	matrixA.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
-	/*
+	
 	Entity objectB;
 	objectB.t = Cvec3(2.0, 2.0, 0.0);
 	objectB.parent = &matrixA;
@@ -238,19 +233,11 @@ void display(void) {
 	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
 	*/
 
-	glUniform3f(lightColorUniform, 1.0, 1.0, 0.0);
-	glUniform3f(lightColorUniform1, 0.0, 0.0, 0.0);
-
-	glUniform3f(specularLightColorUniform, 0.4, 0.3, 0.0);
-	glUniform3f(specularLightColorUniform1, 0.7, 0.3, 0.0);
-
-	Cvec4 lightDirection = Cvec4(sin(timeStart/1000.0) * 10, sin(timeStart/1000.0) * 10, 0.6447, 0);
+	glUniform3f(lightColorUniform, 1.0, 1.0, 1.0);
+	glUniform3f(specularLightColorUniform, 0.0, 0.0, 0.0);
+	Cvec4 lightDirection = Cvec4(-0.6447, 0.6447, 0.6447, 0);
 	lightDirection = normalMatrix(eyeMatrix) * lightDirection;
-	glUniform3f(lightDirectionUniform, sin(timeStart / 1000.0) * 10, sin(timeStart / 1000.0) * 10, 0.6447);
-	Cvec4 lightDirection1 = Cvec4(-0.6447, 0.6447, 0.6447, 0);
-	lightDirection1 = normalMatrix(eyeMatrix) * lightDirection1;
-	glUniform3f(lightDirectionUniform1, lightDirection1[0], lightDirection1[1], lightDirection1[2]);
-
+	glUniform3f(lightDirectionUniform, lightDirection[0], lightDirection[1], lightDirection[2]);
 
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
@@ -340,11 +327,6 @@ void init() {
 	lightColorUniform = glGetUniformLocation(program, "lights[0].lightColor");
 	specularLightColorUniform = glGetUniformLocation(program, "lights[0].specularLightColor");
 
-	lightDirectionUniform1 = glGetUniformLocation(program, "lights[1].lightDirection");
-	lightColorUniform1 = glGetUniformLocation(program, "lights[1].lightColor");
-	specularLightColorUniform1 = glGetUniformLocation(program, "lights[1].specularLightColor");
-
-	
 	CubeGenerator();
 	SphereGenerator();
 	PlaneGenerator();

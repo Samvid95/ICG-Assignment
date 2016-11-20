@@ -10,14 +10,14 @@ struct Light {
 	vec3 specularLightColor;
 };
 
-uniform Light lights[2];
+uniform Light lights[1];
 
 void main() {
 	vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
 	vec3 specularColor = vec3(0.0, 0.0, 0.0);
 	
 	
-	for(int i=0;i<2;i++){
+	for(int i=0;i<1;i++){
 	
 		float diffuse = max(0.0, dot(varyingNormal, lights[i].lightDirection));
 		diffuseColor = lights[i].lightColor * diffuse;
