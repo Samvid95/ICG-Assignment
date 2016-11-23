@@ -37,13 +37,14 @@ GLuint indexBO1, indexBO2, indexBO3, indexBO4;
 GLuint diffuseTexture;
 GLuint diffuseTextureUniformLocation;
 
-GLuint specularTexture;
-GLuint specularTextureUniformLocation;
-
-
 GLuint lightDirectionUniform;
 GLuint lightColorUniform;
 GLuint specularLightColorUniform;
+
+GLuint lightDirectionUniform1;
+GLuint lightColorUniform1;
+GLuint specularLightColorUniform1;
+
 
 typedef struct Entity Entity;
 
@@ -104,10 +105,6 @@ struct Geometry {
 		glUniform1i(diffuseTextureUniformLocation, 0);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
-
-		glUniform1i(specularTextureUniformLocation, 1);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, specularTexture);
 		
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBO4);
 		glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, p));
@@ -203,7 +200,7 @@ void display(void) {
 	//EyeMatrix
 	Matrix4 eyeMatrix;
 	Matrix4 tempTmatrix;
-	tempTmatrix = tempTmatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
+	tempTmatrix = tempTmatrix.makeTranslation(Cvec3(0.0, 0.0, 25.0));
 	Matrix4 tempTnegativematrix = tempTnegativematrix.makeTranslation(Cvec3(0.0, 0.0, -35.0));
 	//eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
 	Quat rot = Quat::makeYRotation(30.0);
@@ -216,20 +213,20 @@ void display(void) {
 	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
 	
 	Entity Object3D;
-	Object3D.t = Cvec3(0.0, -3.0, 4.0);
+	Object3D.t = Cvec3(0.0, -3.0, 0.0);
 	Object3D.r = Cvec3(0.0, 0.0, 0.0);
 	Object3D.s = Cvec3(1.0, 1.0, 1.0);
 	Object3D.parent = NULL;
 	Object3D.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Object3D");
 
-	/*
+	
 	Entity matrixA;
 	matrixA.t = Cvec3(0.0, -4.0, 0.0);
 	matrixA.r = Cvec3(0.0, 0.0, 0.0);
 	matrixA.s = Cvec3(20.0, 20.0, 20.0);
 	matrixA.parent = NULL;
 	matrixA.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
-	
+	/*
 	Entity objectB;
 	objectB.t = Cvec3(2.0, 2.0, 0.0);
 	objectB.parent = &matrixA;
@@ -241,11 +238,19 @@ void display(void) {
 	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
 	*/
 
-	glUniform3f(lightColorUniform, 1.0, 1.0, 1.0);
-	glUniform3f(specularLightColorUniform, 0.0, 0.0, 0.0);
-	Cvec4 lightDirection = Cvec4(-0.6447, 0.6447, 0.6447, 0);
+	glUniform3f(lightColorUniform, 0.0, 0.0, 1.0);
+	glUniform3f(lightColorUniform1, 0.0,0.0, 1.0);
+
+	glUniform3f(specularLightColorUniform, 0.2, 0.7, 0.3);
+	glUniform3f(specularLightColorUniform1, 0.7, 0.0, 1.0);
+
+	Cvec4 lightDirection = Cvec4(2, 0, 1, 0);
 	lightDirection = normalMatrix(eyeMatrix) * lightDirection;
-	glUniform3f(lightDirectionUniform, lightDirection[0], lightDirection[1], lightDirection[2]);
+	glUniform3f(lightDirectionUniform, lightDirection[1], lightDirection[1], lightDirection[2]);
+	Cvec4 lightDirection1 = Cvec4(-2, 0, 1, 0);
+	lightDirection1 = normalMatrix(eyeMatrix) * lightDirection1;
+	glUniform3f(lightDirectionUniform1, lightDirection1[0], lightDirection1[1], lightDirection1[2]);
+
 
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
@@ -325,19 +330,21 @@ void init() {
 
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
+	
+
 	texCoordAttribute = glGetAttribLocation(program, "texCoord");
-
-	diffuseTexture = loadGLTexture("Monk_Giveaway/Monk_D.tga");
+	diffuseTexture = loadGLTexture("Monk_D.tga");
 	diffuseTextureUniformLocation = glGetUniformLocation(program, "diffuseTexture");
-
-	specularTexture = loadGLTexture("Monk_Giveaway/Monk_S.tga");
-	specularTextureUniformLocation = glGetUniformLocation(program, "specularTexture");
-
 	
 	lightDirectionUniform = glGetUniformLocation(program, "lights[0].lightDirection");
 	lightColorUniform = glGetUniformLocation(program, "lights[0].lightColor");
 	specularLightColorUniform = glGetUniformLocation(program, "lights[0].specularLightColor");
 
+	lightDirectionUniform1 = glGetUniformLocation(program, "lights[1].lightDirection");
+	lightColorUniform1 = glGetUniformLocation(program, "lights[1].lightColor");
+	specularLightColorUniform1 = glGetUniformLocation(program, "lights[1].specularLightColor");
+
+	
 	CubeGenerator();
 	SphereGenerator();
 	PlaneGenerator();
