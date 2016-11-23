@@ -53,6 +53,13 @@ GLuint specularLightColorUniform;
 typedef struct Entity Entity;
 
 
+float yd = 0.0;
+bool press = false;
+
+int xlast, ylast;
+
+Quat rotateLucy;
+Quat rotateLock;
 
 struct VertexPN {
 	Cvec3f p, n, b, tg;
@@ -219,14 +226,8 @@ void display(void) {
 	
 	//EyeMatrix
 	Matrix4 eyeMatrix;
-	Matrix4 tempTmatrix;
-	tempTmatrix = tempTmatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
-	Matrix4 tempTnegativematrix = tempTnegativematrix.makeTranslation(Cvec3(0.0, 0.0, -35.0));
-	//eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
-	Quat rot = Quat::makeYRotation(30.0);
-	Matrix4 tempRmatrix = quatToMatrix(rot);
-	eyeMatrix = tempTmatrix;
-	
+	eyeMatrix = quatToMatrix(rotateLock)*quatToMatrix(rotateLucy)*  eyeMatrix.makeTranslation(Cvec3(0, 0, yd));
+
 
 	//Projection Matrix
 	Matrix4 projectionMatrix;
@@ -509,6 +510,42 @@ static bool TestLoadObj(const char* filename, const char* basepath = NULL,
 }
 
 
+
+void mouse(int button, int state, int x, int y) {
+	if (button == 0) {
+		if (!press) {
+			xlast = x;
+			ylast = y;
+		}
+		else {
+			rotateLock = rotateLock*rotateLucy;
+			rotateLucy = Quat();
+		}
+		press = !press;
+	}
+	else
+		if (button == 3) {
+			if (yd > 5.0)
+				yd = yd - 1;
+		}
+		else if (button == 4)
+			if (yd < 100.0) {
+				yd = yd + 1;
+			}
+}
+
+void mouseMove(int x, int y) {
+	Cvec3f vec1 = Cvec3f((float)xlast / 250.0f - 1.0f, (1.0 - (float)ylast / 250.0), 10.0 / yd).normalize();
+	Cvec3f vec2 = Cvec3f((float)x / 250.0f - 1.0f, (1.0 - (float)y / 250.0), 10.0 / yd).normalize();
+	Quat q1 = Quat(0, vec1[0], vec1[1], vec1[2]);
+	Quat q2 = Quat(0, vec2[0], vec2[1], vec2[2]);
+	rotateLucy = q1 * q2;
+
+	//texright = (float)x / 250.0f - 1.0f;
+	//texup = (1.0 - (float)y / 250.0);
+}
+
+
 void reshape(int w, int h) {
 	glViewport(0, 0, w, h);
 }
@@ -523,11 +560,19 @@ int main(int argc, char **argv) {
 	glutInitWindowSize(500, 500);
 	glutCreateWindow("CS - 6533");
 
+	rotateLucy = Quat();
+	rotateLock = Quat();
+	yd = 35.0;
+
 	glewInit();
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
+	
+	glutMouseFunc(mouse);
+	glutMotionFunc(mouseMove);
+
 
 	cout << "Coming overhere!!";
 	assert(true == TestLoadObj("Monk_Giveaway/Monk_Giveaway_Fixed.obj", "/", false));
