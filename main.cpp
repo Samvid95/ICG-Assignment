@@ -29,6 +29,9 @@ GLuint positionUniform;
 
 GLuint normalAttribute;
 GLuint normalMatrixUniformLocation;
+GLuint binormalAttribute;
+GLuint tangentAttribute;
+
 GLuint uColorLocation;
 
 GLuint vertexBO1, vertexBO2, vertexBO3, vertexBO4;
@@ -37,24 +40,24 @@ GLuint indexBO1, indexBO2, indexBO3, indexBO4;
 GLuint diffuseTexture;
 GLuint diffuseTextureUniformLocation;
 
+GLuint specularTexture;
+GLuint specularTextureUniformLocation;
+
+GLuint normalTexture;
+GLuint normalUniformLocation;
+
 GLuint lightDirectionUniform;
 GLuint lightColorUniform;
 GLuint specularLightColorUniform;
-
-GLuint lightDirectionUniform1;
-GLuint lightColorUniform1;
-GLuint specularLightColorUniform1;
-
 
 typedef struct Entity Entity;
 
 
 
 struct VertexPN {
-	Cvec3f p;
-	Cvec3f n;
+	Cvec3f p, n, b, tg;
 	Cvec2f t;
-	
+
 	VertexPN() {}
 	VertexPN(float x, float y, float z, float nx, float ny, float nz) : p(x, y, z), n(nx, ny, nz) {}
 
@@ -62,6 +65,8 @@ struct VertexPN {
 		p = v.pos;
 		n = v.normal;
 		t = v.tex;
+		b = v.binormal;
+		tg = v.tangent;
 		return *this;
 	}
 };
@@ -105,7 +110,15 @@ struct Geometry {
 		glUniform1i(diffuseTextureUniformLocation, 0);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
+
+		glUniform1i(specularTextureUniformLocation, 1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularTexture);
 		
+		glUniform1i(normalUniformLocation, 2);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, normalTexture);
+
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBO4);
 		glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, p));
 		glEnableVertexAttribArray(positionAttribute);
@@ -115,6 +128,13 @@ struct Geometry {
 
 		glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, n));
 		glEnableVertexAttribArray(normalAttribute);
+
+		glEnableVertexAttribArray(binormalAttribute);
+		glVertexAttribPointer(binormalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, b));
+		
+		glEnableVertexAttribArray(tangentAttribute);
+		glVertexAttribPointer(tangentAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)offsetof(VertexPN, tg));
+		
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO4);
 
 
@@ -200,7 +220,7 @@ void display(void) {
 	//EyeMatrix
 	Matrix4 eyeMatrix;
 	Matrix4 tempTmatrix;
-	tempTmatrix = tempTmatrix.makeTranslation(Cvec3(0.0, 0.0, 25.0));
+	tempTmatrix = tempTmatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
 	Matrix4 tempTnegativematrix = tempTnegativematrix.makeTranslation(Cvec3(0.0, 0.0, -35.0));
 	//eyeMatrix = eyeMatrix.makeTranslation(Cvec3(0.0, 0.0, 35.0));
 	Quat rot = Quat::makeYRotation(30.0);
@@ -213,20 +233,20 @@ void display(void) {
 	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
 	
 	Entity Object3D;
-	Object3D.t = Cvec3(0.0, -3.0, 0.0);
+	Object3D.t = Cvec3(0.0, -3.0, 4.0);
 	Object3D.r = Cvec3(0.0, 0.0, 0.0);
 	Object3D.s = Cvec3(1.0, 1.0, 1.0);
 	Object3D.parent = NULL;
 	Object3D.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Object3D");
 
-	
+	/*
 	Entity matrixA;
 	matrixA.t = Cvec3(0.0, -4.0, 0.0);
 	matrixA.r = Cvec3(0.0, 0.0, 0.0);
 	matrixA.s = Cvec3(20.0, 20.0, 20.0);
 	matrixA.parent = NULL;
 	matrixA.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
-	/*
+	
 	Entity objectB;
 	objectB.t = Cvec3(2.0, 2.0, 0.0);
 	objectB.parent = &matrixA;
@@ -238,19 +258,11 @@ void display(void) {
 	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
 	*/
 
-	glUniform3f(lightColorUniform, 0.0, 0.0, 1.0);
-	glUniform3f(lightColorUniform1, 0.0,0.0, 1.0);
-
-	glUniform3f(specularLightColorUniform, 0.2, 0.7, 0.3);
-	glUniform3f(specularLightColorUniform1, 0.7, 0.0, 1.0);
-
-	Cvec4 lightDirection = Cvec4(2, 0, 1, 0);
+	glUniform3f(lightColorUniform, 1.0, 1.0, 1.0);
+	glUniform3f(specularLightColorUniform, 0.0, 0.0, 0.0);
+	Cvec4 lightDirection = Cvec4(-0.6447, 0.6447, 0.6447, 0);
 	lightDirection = normalMatrix(eyeMatrix) * lightDirection;
-	glUniform3f(lightDirectionUniform, lightDirection[1], lightDirection[1], lightDirection[2]);
-	Cvec4 lightDirection1 = Cvec4(-2, 0, 1, 0);
-	lightDirection1 = normalMatrix(eyeMatrix) * lightDirection1;
-	glUniform3f(lightDirectionUniform1, lightDirection1[0], lightDirection1[1], lightDirection1[2]);
-
+	glUniform3f(lightDirectionUniform, lightDirection[0], lightDirection[1], lightDirection[2]);
 
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
@@ -330,26 +342,52 @@ void init() {
 
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
-	
-
 	texCoordAttribute = glGetAttribLocation(program, "texCoord");
-	diffuseTexture = loadGLTexture("Monk_D.tga");
+	binormalAttribute = glGetAttribLocation(program, "binormal");
+	tangentAttribute = glGetAttribLocation(program, "tangent");
+
+	diffuseTexture = loadGLTexture("Monk_Giveaway/Monk_D.tga");
 	diffuseTextureUniformLocation = glGetUniformLocation(program, "diffuseTexture");
-	
+
+	specularTexture = loadGLTexture("Monk_Giveaway/Monk_S.tga");
+	specularTextureUniformLocation = glGetUniformLocation(program, "specularTexture");
+
+	normalTexture = loadGLTexture("Monk_Giveaway/Monk_N_Normal_Bump.tga");
+	normalUniformLocation = glGetUniformLocation(program, "normalTexture");
+
 	lightDirectionUniform = glGetUniformLocation(program, "lights[0].lightDirection");
 	lightColorUniform = glGetUniformLocation(program, "lights[0].lightColor");
 	specularLightColorUniform = glGetUniformLocation(program, "lights[0].specularLightColor");
 
-	lightDirectionUniform1 = glGetUniformLocation(program, "lights[1].lightDirection");
-	lightColorUniform1 = glGetUniformLocation(program, "lights[1].lightColor");
-	specularLightColorUniform1 = glGetUniformLocation(program, "lights[1].specularLightColor");
-
-	
 	CubeGenerator();
 	SphereGenerator();
 	PlaneGenerator();
 
 
+}
+
+void calculateFaceTangent(const Cvec3f &v1, const Cvec3f &v2, const Cvec3f &v3,
+	const Cvec2f &texCoord1, const Cvec2f &texCoord2, const Cvec2f &texCoord3,
+	Cvec3f &tangent, Cvec3f &binormal) {
+	Cvec3f side0 = v1 - v2;
+	Cvec3f side1 = v3 - v1;
+	Cvec3f normal = cross(side1, side0);
+	normalize(normal);
+	float deltaV0 = texCoord1[1] - texCoord2[1];
+	float deltaV1 = texCoord3[1] - texCoord1[1];
+	tangent = side0 * deltaV1 - side1 * deltaV0;
+	normalize(tangent);
+
+	float deltaU0 = texCoord1[0] - texCoord2[0];
+	float deltaU1 = texCoord3[0] - texCoord1[0];
+
+	binormal = side0 * deltaU1 - side1 * deltaU0;
+	normalize(binormal);
+	Cvec3f tangentCross = cross(tangent, binormal);
+
+	if (dot(tangentCross, normal) < 0.0f) {
+		tangent = tangent * -1;
+	}
 }
 
 static void PrintInfo(const tinyobj::attrib_t& attrib,
@@ -414,6 +452,23 @@ static void PrintInfo(const tinyobj::attrib_t& attrib,
 		}
 	}
 	
+	for (int i = 0; i < vtx.size(); i += 3) {
+		Cvec3f tangent;
+		Cvec3f binormal;
+
+		calculateFaceTangent(vtx[i].p, vtx[i + 1].p, vtx[i + 2].p
+			, vtx[i].t, vtx[i + 1].t, vtx[i + 2].t, tangent, binormal);
+
+		vtx[i].tg = tangent;
+		vtx[i + 1].tg = tangent;
+		vtx[i + 2].tg = tangent;
+
+		vtx[i].b = binormal;
+		vtx[i + 1].b = binormal;
+		vtx[i + 2].b = binormal;
+
+	}
+
 	glGenBuffers(1, &vertexBO4);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBO4);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPN) * vtx.size(), vtx.data(), GL_STATIC_DRAW);
