@@ -56,7 +56,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\freeglut\freeglut\include\GL;C:\glew\include\GL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\ICG\bullet-2.81-rev2613\src;C:\freeglut\freeglut\include\GL;C:\glew\include\GL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,6 +92,17 @@
   <ItemGroup>
     <ClCompile Include="glsupport.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TutorialBullet\src\BulletCollision\BulletCollision.vcxproj">
+      <Project>{fcf66cf9-d601-30c9-a6f2-1e8061f6ed16}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\TutorialBullet\src\BulletDynamics\BulletDynamics.vcxproj">
+      <Project>{18decb53-0924-3345-bd3c-f302b6569405}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\TutorialBullet\src\LinearMath\LinearMath.vcxproj">
+      <Project>{084c58a4-5704-32ee-ad1b-5185a6bc2dd0}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
