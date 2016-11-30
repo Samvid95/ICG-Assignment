@@ -48,6 +48,7 @@ btDiscreteDynamicsWorld *dynamicsWorld;
 
 //RigidBody
 btRigidBody *fallRigidBody;
+btRigidBody *groundRigidBody;
 
 typedef struct Entity Entity;
 
@@ -231,6 +232,17 @@ void display(void) {
 	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
 	*/
 
+
+	dynamicsWorld->stepSimulation(1 / 60.f, 10);
+
+	btTransform trans;
+	btTransform transPlane;
+	fallRigidBody->getMotionState()->getWorldTransform(trans);
+	groundRigidBody->getMotionState()->getWorldTransform(transPlane);
+	std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
+	std::cout << "Plane height: " << transPlane.getOrigin().getY() << std::endl;
+
+
 	Entity plane;
 	plane.t = Cvec3(0.0, 0.0, 0.0);
 	plane.r = Cvec3(0.0, 0.0, 0.0);
@@ -239,7 +251,7 @@ void display(void) {
 	plane.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Plane");
 
 	Entity sphere;
-	sphere.t = Cvec3(0.0, 5.0, 0.0);
+	sphere.t = Cvec3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
 	sphere.r = Cvec3(0.0, 0.0, 0.0);
 	sphere.s = Cvec3(1.0, 1.0, 1.0);
 	sphere.parent = NULL;
@@ -271,17 +283,8 @@ void SphereGenerator() {
 	btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(mass, fallMotionState, fallShape, fallInertia);
 	fallRigidBody = new btRigidBody(fallRigidBodyCI);
 	dynamicsWorld->addRigidBody(fallRigidBody);
-	/*
-	for (int i = 0; i < 300; i++) {
-
-		dynamicsWorld->stepSimulation(1 / 60.f, 10);
-
-		btTransform trans;
-		fallRigidBody->getMotionState()->getWorldTransform(trans);
-
-		std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
-	}
-	*/
+	
+	
 	// fill our arrays
 	glGenBuffers(1, &vertexBO1);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBO1);
@@ -297,6 +300,14 @@ void PlaneGenerator() {
 	vector<VertexPN> vtx(vbLen);
 	vector<unsigned short> idx(ibLen);
 	makePlane(4, vtx.begin(), idx.begin());
+
+	btCollisionShape *groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 4);
+
+	btDefaultMotionState *groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
+	
+	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, groundShape, btVector3(0, 0, 0));
+	groundRigidBody = new btRigidBody(groundRigidBodyCI);
+	dynamicsWorld->addRigidBody(groundRigidBody);
 
 	// fill our arrays
 	glGenBuffers(1, &vertexBO2);
