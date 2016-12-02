@@ -244,7 +244,7 @@ void display(void) {
 
 
 	Entity plane;
-	plane.t = Cvec3(0.0, 0.0, 0.0);
+	plane.t = Cvec3(transPlane.getOrigin().getX(), transPlane.getOrigin().getY(), transPlane.getOrigin().getZ());
 	plane.r = Cvec3(0.0, 0.0, 0.0);
 	plane.s = Cvec3(1.0, 1.0, 1.0);
 	plane.parent = NULL;
@@ -305,7 +305,11 @@ void PlaneGenerator() {
 
 	btDefaultMotionState *groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
 	
-	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, groundShape, btVector3(0, 0, 0));
+	btScalar mass = 1;
+	btVector3 fallInertia(0, 0, 0);
+	groundShape->calculateLocalInertia(mass, fallInertia);
+
+	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, groundMotionState, groundShape, fallInertia);
 	groundRigidBody = new btRigidBody(groundRigidBodyCI);
 	dynamicsWorld->addRigidBody(groundRigidBody);
 
