@@ -29,13 +29,17 @@ GLuint positionUniform;
 
 GLuint normalAttribute;
 GLuint normalMatrixUniformLocation;
-GLuint uColorLocation;
+
 
 GLuint vertexBO1, vertexBO2, vertexBO3, vertexBO4;
 GLuint indexBO1, indexBO2, indexBO3, indexBO4;
 
 GLuint diffuseTexture;
 GLuint diffuseTextureUniformLocation;
+
+GLuint frameBuffer;
+GLuint frameBufferTexture;
+GLuint depthBufferTexture;
 
 typedef struct Entity Entity;
 
@@ -89,7 +93,7 @@ struct Geometry {
 
 	}
 	if (type == "Object3D") {
-		cout << "Coming over here!!";
+		
 		
 		glUniform1i(diffuseTextureUniformLocation, 0);
 		glActiveTexture(GL_TEXTURE0);
@@ -107,7 +111,7 @@ struct Geometry {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBO4);
 
 	}
-		glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 100000, GL_UNSIGNED_SHORT, 0);
+		
 	}
 };
 
@@ -171,7 +175,7 @@ public:
 		GLfloat glMatrixANormal[16];
 		normalMatrixtemp.writeToColumnMajorMatrix(glMatrixANormal);
 		glUniformMatrix4fv(normalMatrixUniformLocation, 1, false, glMatrixANormal);
-		glUniform3f(uColorLocation, 1.0, 0.0, 0.0);
+		
 
 		geometry.Draw(type);
 	}
@@ -180,8 +184,10 @@ public:
 
 
 void display(void) {
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	glViewport(0, 0, 1024, 1024);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
 	glUseProgram(program);
 	int timeStart = glutGet(GLUT_ELAPSED_TIME);
 	
@@ -191,6 +197,8 @@ void display(void) {
 
 	//Projection Matrix
 	Matrix4 projectionMatrix;
+	projectionMatrix = projectionMatrix.makeTranslation(Cvec3(0.5, 0.5, 0.0));
+	projectionMatrix = projectionMatrix.makeScale(Cvec3(0.5, 0.5, 1.0));
 	projectionMatrix = projectionMatrix.makeProjection(45.0, 1.0, -0.1, -100.0);
 	
 	Entity Object3D;
@@ -219,11 +227,19 @@ void display(void) {
 	objectC.Draw(eyeMatrix, projectionMatrix, modelViewMatrixUniformLocation, projectionMatrixUniformLocation, normalMatrixUniformLocation, "Sphere");
 	*/
 
+	glDrawElements(GL_TRIANGLES, sizeof(VertexPN) * 100000, GL_UNSIGNED_SHORT, 0);
+
 	glDisableVertexAttribArray(positionAttribute);
 	glDisableVertexAttribArray(colorAttribute);
 	glDisableVertexAttribArray(normalAttribute);
 
 	glutSwapBuffers();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, 500, 500);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
 }
 
 void SphereGenerator() {
@@ -279,11 +295,11 @@ void init() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_GREATER);
 	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 	glReadBuffer(GL_BACK);
 
 
-	glClearColor(1, 1, 1, 0.0);
+	glClearColor(0.2, 0.2, 0.2, 0.0);
 	program = glCreateProgram();
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
 
@@ -293,7 +309,7 @@ void init() {
 	modelViewMatrixUniformLocation = glGetUniformLocation(program, "modelViewMatrix");
 	projectionMatrixUniformLocation = glGetUniformLocation(program, "projectionMatrix");
 	positionUniform = glGetUniformLocation(program, "modelPosition");
-	uColorLocation = glGetUniformLocation(program, "uColor");
+	
 
 	normalMatrixUniformLocation = glGetUniformLocation(program, "normalMatrix");
 	normalAttribute = glGetAttribLocation(program, "normal");
@@ -306,6 +322,31 @@ void init() {
 	SphereGenerator();
 	PlaneGenerator();
 
+	glGenFramebuffers(1, &frameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
+	glGenTextures(1, &frameBufferTexture);
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+
+	glTexImage2D(
+		GL_TEXTURE_2D, 0, GL_RGB, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL
+	);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+
+
+
+	glGenTextures(1, &depthBufferTexture);
+	glBindTexture(GL_TEXTURE_2D, depthBufferTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 1024, 1024);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 
@@ -413,7 +454,7 @@ int main(int argc, char **argv) {
 	glutIdleFunc(idle);
 
 	cout << "Coming overhere!!";
-	assert(true == TestLoadObj("monk.obj", "/", false));
+	assert(true == TestLoadObj("Monk_Giveaway_Fixed.obj", "/", false));
 	init();
 	glutMainLoop();
 	
