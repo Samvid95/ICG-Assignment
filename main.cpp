@@ -260,11 +260,11 @@ void display(void) {
 	glDisableVertexAttribArray(colorAttribute);
 	glDisableVertexAttribArray(normalAttribute);
 
-	glutSwapBuffers();
+	
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, 500, 500);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glViewport(0, 0, 500, 500);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	/*
 	glUseProgram(screenTrianglesProgram);
 	glUniform1i(screenFramebufferUniform, 0);
@@ -283,6 +283,12 @@ void display(void) {
 	glDisableVertexAttribArray(screenTrianglesPositionAttribute);
 	glDisableVertexAttribArray(screenTrianglesTexCoordAttribute);
 	*/
+
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer2);
+	
+	glViewport(0, 0, 1024, 1024);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	glUseProgram(hBlurProgram);
 	glUniform1i(hBlurFrameBufferUniform, 0);
 	glActiveTexture(GL_TEXTURE0);
@@ -300,6 +306,30 @@ void display(void) {
 	glDisableVertexAttribArray(hBlurPositionAttribute);
 	glDisableVertexAttribArray(hBlurTexCoordAttribute);
 
+	
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, 500, 500);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUseProgram(screenTrianglesProgram);
+	glUniform1i(screenFramebufferUniform, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
+
+	glBindBuffer(GL_ARRAY_BUFFER, screenTrianglesPositionBuffer);
+	glVertexAttribPointer(screenTrianglesPositionAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(screenTrianglesPositionAttribute);
+
+	glBindBuffer(GL_ARRAY_BUFFER, screenTrianglesUVBuffer);
+	glVertexAttribPointer(screenTrianglesTexCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(screenTrianglesTexCoordAttribute);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDisableVertexAttribArray(screenTrianglesPositionAttribute);
+	glDisableVertexAttribArray(screenTrianglesTexCoordAttribute);
+
+	glutSwapBuffers();
 }
 
 void SphereGenerator() {
@@ -410,6 +440,31 @@ void init() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 1024, 1024);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+
+	glGenFramebuffers(1, &frameBuffer2);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer2);
+
+	glGenTextures(1, &frameBufferTexture2);
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
+
+	glTexImage2D(
+		GL_TEXTURE_2D, 0, GL_RGB, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL
+	);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture2, 0);
+
+	glGenTextures(1, &depthBufferTexture2);
+	glBindTexture(GL_TEXTURE_2D, depthBufferTexture2);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 1024, 1024);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBufferTexture2, 0);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
