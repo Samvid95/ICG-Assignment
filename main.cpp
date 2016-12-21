@@ -51,6 +51,16 @@ GLuint screenTrianglesUVBuffer;
 
 GLuint screenFramebufferUniform;
 
+//hBlurProgram
+
+GLint hBlurProgram;
+
+GLuint screenTrianglesPositionAttribute1;
+GLuint screenTrianglesPositionBuffer1;
+GLuint screenTrianglesTexCoordAttribute1;
+GLuint screenTrianglesUVBuffer1;
+
+GLuint screenFramebufferUniform1;
 
 typedef struct Entity Entity;
 
@@ -249,7 +259,7 @@ void display(void) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, 500, 500);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	/*
 	glUseProgram(screenTrianglesProgram);
 	glUniform1i(screenFramebufferUniform, 0);
 	glActiveTexture(GL_TEXTURE0);
@@ -266,7 +276,23 @@ void display(void) {
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDisableVertexAttribArray(screenTrianglesPositionAttribute);
 	glDisableVertexAttribArray(screenTrianglesTexCoordAttribute);
+	*/
+	glUseProgram(hBlurProgram);
+	glUniform1i(screenFramebufferUniform1, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
+	glBindBuffer(GL_ARRAY_BUFFER, screenTrianglesPositionBuffer1);
+	glVertexAttribPointer(screenTrianglesPositionAttribute1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(screenTrianglesPositionAttribute1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, screenTrianglesUVBuffer1);
+	glVertexAttribPointer(screenTrianglesTexCoordAttribute1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(screenTrianglesTexCoordAttribute1);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDisableVertexAttribArray(screenTrianglesPositionAttribute1);
+	glDisableVertexAttribArray(screenTrianglesTexCoordAttribute1);
 
 }
 
@@ -332,6 +358,8 @@ void init() {
 	readAndCompileShader(program, "vertex.glsl", "fragment.glsl");
 	screenTrianglesProgram = glCreateProgram();
 	readAndCompileShader(screenTrianglesProgram, "vertex2.glsl", "fragment2.glsl");
+	hBlurProgram = glCreateProgram();
+	readAndCompileShader(hBlurProgram, "vertexHBlur.glsl", "fragmentHBlur.glsl");
 
 	
 	glUseProgram(program);
@@ -411,6 +439,43 @@ void init() {
 	};
 	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), screenTriangleUVs, GL_STATIC_DRAW);
 	
+	glUseProgram(hBlurProgram);
+	screenFramebufferUniform1 = glGetUniformLocation(hBlurProgram, "screenFramebuffer");
+
+	screenTrianglesPositionAttribute1 = glGetAttribLocation(hBlurProgram, "position");
+	glGenBuffers(1, &screenTrianglesPositionBuffer1);
+	glBindBuffer(GL_ARRAY_BUFFER, screenTrianglesPositionBuffer1);
+	/*
+	GLfloat screenTrianglePositions[] = {
+		-1.0f, -1.0f,
+		1.0f, -1.0f,
+		1.0f, 1.0f,
+		1.0f, 1.0f,
+		-1.0f, 1.0f,
+		-1.0f, -1.0f
+	};
+	*/
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), screenTrianglePositions, GL_STATIC_DRAW);
+
+
+	screenTrianglesTexCoordAttribute1 = glGetAttribLocation(hBlurProgram, "texCoord");
+	glGenBuffers(1, &screenTrianglesUVBuffer1);
+	glBindBuffer(GL_ARRAY_BUFFER, screenTrianglesUVBuffer1);
+	/*
+	GLfloat screenTriangleUVs[] = {
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0,
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, 0.0f
+
+
+	};
+	*/
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), screenTriangleUVs, GL_STATIC_DRAW);
+
+
 }
 
 static void PrintInfo(const tinyobj::attrib_t& attrib,
