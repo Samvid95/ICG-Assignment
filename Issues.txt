@@ -1,0 +1,3 @@
+1. Directional Light problem about changing it into the world space!!
+2. 3D object loading takes extreme times and sooo slow. So optimization is needed.
+3. Trackball implementation.
